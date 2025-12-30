@@ -33,6 +33,9 @@ import de.jrpie.android.launcher.ui.transformGrayscale
  * @param activity - the activity this is in
  * @param intention - why the list is displayed ("view", "pick")
  * @param forGesture - the action which an app is chosen for (when the intention is "pick")
+ * @param appFilter - the filter applied to the apps list
+ * @param layout - layout type for list/grid
+ * @param nameFormat - formatting for app names
  */
 @SuppressLint("NotifyDataSetChanged")
 class AppsRecyclerAdapter(
@@ -96,6 +99,13 @@ class AppsRecyclerAdapter(
         }
         viewHolder.textView.text = nameFormat.format(appLabel)
 
+        // Hide app names in grid layout if the preference is enabled
+        val prefs = LauncherPreferences.getSharedPreferences()
+        val hideAppNames = (layout == ListLayout.GRID) && prefs.getBoolean(
+            activity.getString(R.string.settings_list_hide_app_names_key),
+            false
+        )
+        viewHolder.textView.visibility = if (hideAppNames) View.GONE else View.VISIBLE
 
         // decide when to show the options popup menu about
         if (intention == AbstractListActivity.Companion.Intention.VIEW) {
