@@ -86,7 +86,7 @@ class SettingsFragmentMeta : Fragment(), UIObject {
         // report a bug
         binding.settingsMetaButtonReportBug.setOnClickListener {
             val deviceInfo = getDeviceInfo()
-            MaterialAlertDialogBuilder(context, R.style.AlertDialogCustom).apply {
+            MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogCustom).apply {
                 setView(R.layout.dialog_report_bug)
                 setTitle(R.string.dialog_report_bug_title)
                 setPositiveButton(R.string.dialog_report_bug_create_report) { _, _ ->
@@ -100,14 +100,14 @@ class SettingsFragmentMeta : Fragment(), UIObject {
                 val info = findViewById<TextView>(R.id.dialog_report_bug_device_info)
                 val buttonClipboard = findViewById<Button>(R.id.dialog_report_bug_button_clipboard)
                 val buttonSecurity = findViewById<Button>(R.id.dialog_report_bug_button_security)
-                info.text = deviceInfo
-                buttonClipboard.setOnClickListener {
+                info?.text = deviceInfo
+                buttonClipboard?.setOnClickListener {
                     copyToClipboard(requireContext(), deviceInfo)
                 }
-                info.setOnClickListener {
+                info?.setOnClickListener {
                     copyToClipboard(requireContext(), deviceInfo)
                 }
-                buttonSecurity.setOnClickListener {
+                buttonSecurity?.setOnClickListener {
                     openInBrowser(
                         getString(R.string.settings_meta_report_vulnerability_link),
                         requireContext()

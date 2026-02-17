@@ -108,7 +108,7 @@ class PinShortcutActivity : UIObjectActivity() {
                         }
                         dialog.dismiss()
                     }
-                    dialog.findViewById<RecyclerView>(R.id.dialog_select_gesture_recycler).apply {
+                    dialog.findViewById<RecyclerView>(R.id.dialog_select_gesture_recycler)?.apply {
                         setHasFixedSize(true)
                         layoutManager = viewManager
                         adapter = viewAdapter
