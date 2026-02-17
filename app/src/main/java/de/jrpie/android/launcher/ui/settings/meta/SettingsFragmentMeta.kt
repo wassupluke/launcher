@@ -1,6 +1,6 @@
 package de.jrpie.android.launcher.ui.settings.meta
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -62,7 +62,7 @@ class SettingsFragmentMeta : Fragment(), UIObject {
 
         // prompting for settings-reset confirmation
         binding.settingsMetaButtonResetSettings.setOnClickListener {
-            AlertDialog.Builder(this.requireContext(), R.style.AlertDialogCustom)
+            MaterialAlertDialogBuilder(this.requireContext(), R.style.AlertDialogCustom)
                 .setTitle(getString(R.string.settings_meta_reset))
                 .setMessage(getString(R.string.settings_meta_reset_confirm))
                 .setPositiveButton(
@@ -86,7 +86,7 @@ class SettingsFragmentMeta : Fragment(), UIObject {
         // report a bug
         binding.settingsMetaButtonReportBug.setOnClickListener {
             val deviceInfo = getDeviceInfo()
-            AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
+            MaterialAlertDialogBuilder(context, R.style.AlertDialogCustom).apply {
                 setView(R.layout.dialog_report_bug)
                 setTitle(R.string.dialog_report_bug_title)
                 setPositiveButton(R.string.dialog_report_bug_create_report) { _, _ ->
