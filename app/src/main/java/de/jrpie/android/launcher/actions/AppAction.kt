@@ -1,6 +1,6 @@
 package de.jrpie.android.launcher.actions
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.app.Service
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -56,7 +56,7 @@ class AppAction(val app: AppInfo) : Action {
 
         /* check if app is installed */
         if (isAvailable(context)) {
-            AlertDialog.Builder(
+            MaterialAlertDialogBuilder(
                 context,
                 R.style.AlertDialogCustom
             )

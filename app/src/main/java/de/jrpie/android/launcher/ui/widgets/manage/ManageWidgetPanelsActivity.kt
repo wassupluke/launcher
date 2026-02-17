@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.jrpie.android.launcher.R
 import de.jrpie.android.launcher.databinding.ActivityManageWidgetPanelsBinding
@@ -55,7 +56,7 @@ class ManageWidgetPanelsActivity : UIObjectActivity() {
         }
         binding.manageWidgetPanelsClose.setOnClickListener { finish() }
         binding.manageWidgetPanelsAddPanel.setOnClickListener {
-            AlertDialog.Builder(this@ManageWidgetPanelsActivity, R.style.AlertDialogCustom).apply {
+            MaterialAlertDialogBuilder(this@ManageWidgetPanelsActivity, R.style.AlertDialogCustom).apply {
                 setTitle(R.string.dialog_create_widget_panel_title)
                 setNegativeButton(R.string.dialog_cancel) { _, _ -> }
                 setPositiveButton(R.string.dialog_ok) { dialogInterface, _ ->
