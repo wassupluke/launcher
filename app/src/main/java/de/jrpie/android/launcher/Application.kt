@@ -22,6 +22,7 @@ import de.jrpie.android.launcher.apps.isPrivateSpaceLocked
 import de.jrpie.android.launcher.preferences.LauncherPreferences
 import de.jrpie.android.launcher.preferences.migratePreferencesToNewVersion
 import de.jrpie.android.launcher.preferences.resetPreferences
+import de.jrpie.android.launcher.widgets.removeWidgetsForPackage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,6 +50,7 @@ class Application : android.app.Application() {
     private val launcherAppsCallback = object : LauncherApps.Callback() {
         override fun onPackageRemoved(p0: String?, p1: UserHandle?) {
             loadApps()
+            removeWidgetsForPackage(this@Application, p0, p1)
         }
 
         override fun onPackageAdded(p0: String?, p1: UserHandle?) {

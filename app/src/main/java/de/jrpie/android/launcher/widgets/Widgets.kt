@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.Build
+import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
 import de.jrpie.android.launcher.Application
@@ -93,6 +94,15 @@ fun updateWidgetPanel(widgetPanel: WidgetPanel) {
             .minus(widgetPanel)
             .plus(widgetPanel)
     )
+}
+
+fun removeWidgetsForPackage(context: Context, packageName: String?, userHandle: UserHandle?) {
+    if (packageName == null) return
+    val userId = userHandle?.hashCode()
+    LauncherPreferences.widgets().widgets()
+        ?.filterIsInstance<AppWidget>()
+        ?.filter { it.packageName == packageName && (userId == null || it.user == userId) }
+        ?.forEach { it.delete(context) }
 }
 
 fun Context.getAppWidgetHost(): AppWidgetHost {
