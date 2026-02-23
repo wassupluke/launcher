@@ -1,7 +1,8 @@
 package de.jrpie.android.launcher.actions.lock
 
 import android.accessibilityservice.AccessibilityService
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -72,7 +73,7 @@ class LauncherAccessibilityService : AccessibilityService() {
         }
 
         fun showEnableDialog(context: Context) {
-            AlertDialog.Builder(context, R.style.AlertDialogDanger).apply {
+            MaterialAlertDialogBuilder(context, R.style.AlertDialogDanger).apply {
                 setView(R.layout.dialog_consent_accessibility)
                 setTitle(R.string.dialog_consent_accessibility_title)
                 setPositiveButton(R.string.dialog_consent_accessibility_ok) { _, _ ->

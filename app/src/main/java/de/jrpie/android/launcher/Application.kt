@@ -13,6 +13,9 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.UserHandle
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.DynamicColorsOptions
+import de.jrpie.android.launcher.preferences.theme.ColorTheme
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import de.jrpie.android.launcher.actions.TorchManager
@@ -104,8 +107,6 @@ class Application : android.app.Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // TODO  Error: Invalid resource ID 0x00000000.
-        // DynamicColors.applyToActivitiesIfAvailable(this)
 
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
             sendCrashNotification(this@Application, throwable)
@@ -126,6 +127,15 @@ class Application : android.app.Application() {
 
         // Try to restore old preferences
         migratePreferencesToNewVersion(this)
+
+        DynamicColors.applyToActivitiesIfAvailable(
+            this,
+            DynamicColorsOptions.Builder()
+                .setPrecondition { _, _ ->
+                    LauncherPreferences.theme().colorTheme() == ColorTheme.DYNAMIC
+                }
+                .build()
+        )
 
         // First time opening the app: set defaults
         // The tutorial is started from HomeActivity#onStart, as starting it here is blocked by android

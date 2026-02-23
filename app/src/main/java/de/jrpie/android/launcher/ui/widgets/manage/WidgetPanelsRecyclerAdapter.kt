@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.recyclerview.widget.RecyclerView
 import de.jrpie.android.launcher.R
 import de.jrpie.android.launcher.preferences.LauncherPreferences
@@ -64,7 +65,7 @@ class WidgetPanelsRecyclerAdapter(
             true
         }
         popup.menu.add(R.string.manage_widget_panels_rename).setOnMenuItemClickListener { _ ->
-            AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
+            MaterialAlertDialogBuilder(context, R.style.AlertDialogCustom).apply {
                 setNegativeButton(R.string.dialog_cancel) { _, _ -> }
                 setPositiveButton(R.string.dialog_ok) { dialogInterface, _ ->
                     var newLabel = (dialogInterface as? AlertDialog)

@@ -10,7 +10,7 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -50,7 +50,7 @@ class ColorPreference(context: Context, attrs: AttributeSet?) :
     private fun showDialog() {
         var currentColor = getPersistedInt(selectedColor)
 
-        AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
+        MaterialAlertDialogBuilder(context, R.style.AlertDialogCustom).apply {
             setView(R.layout.dialog_choose_color)
             setTitle(R.string.dialog_choose_color_title)
             setPositiveButton(android.R.string.ok) { _, _ ->

@@ -1,6 +1,6 @@
 package de.jrpie.android.launcher.ui
 
-import android.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.content.pm.LauncherApps.PinItemRequest
@@ -92,7 +92,7 @@ class PinShortcutActivity : UIObjectActivity() {
         )
 
         binding.pinShortcutButtonBind.setOnClickListener {
-            AlertDialog.Builder(this, R.style.AlertDialogCustom)
+            MaterialAlertDialogBuilder(this, R.style.AlertDialogCustom)
                 .setTitle(getString(R.string.pin_shortcut_button_bind))
                 .setView(R.layout.dialog_select_gesture)
                 .setNegativeButton(android.R.string.cancel, null)
@@ -108,7 +108,7 @@ class PinShortcutActivity : UIObjectActivity() {
                         }
                         dialog.dismiss()
                     }
-                    dialog.findViewById<RecyclerView>(R.id.dialog_select_gesture_recycler).apply {
+                    dialog.findViewById<RecyclerView>(R.id.dialog_select_gesture_recycler)?.apply {
                         setHasFixedSize(true)
                         layoutManager = viewManager
                         adapter = viewAdapter

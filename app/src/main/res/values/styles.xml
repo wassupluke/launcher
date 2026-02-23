@@ -2,16 +2,16 @@
 
 
     <!-- to force black textcolor for buttons -->
-    <style name="buttonBlackText" parent="@style/Widget.AppCompat.Button.Colored">
+    <style name="buttonBlackText" parent="@style/Widget.Material3.Button">
         <item name="android:textColor">#000000</item>
-        <!--<item name="colorButtonNormal">?colorAccent</item>-->
     </style>
 
     <!-- Base theme for Launcher -->
-    <style name="launcherBaseTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/finnmglasTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/finnmglasTheme_background_color</item>
-        <item name="colorAccent">@color/finnmglasTheme_accent_color</item>
+    <style name="launcherBaseTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/finnmglasTheme_accent_color</item>
+        <item name="colorSecondary">@color/finnmglasTheme_accent_color</item>
+        <item name="colorSurface">@color/finnmglasTheme_background_color</item>
+        <item name="colorOnSurface">@color/finnmglasTheme_text_color</item>
         <item name="android:colorBackground">@color/finnmglasTheme_background_color</item>
 
         <item name="android:textColor">@color/finnmglasTheme_text_color</item>
@@ -19,8 +19,7 @@
         <item name="android:textColorPrimary">?android:textColor</item>
         <item name="android:textColorHint">?android:textColor</item>
 
-        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
-        <item name="colorButtonNormal">?colorAccent</item>
+        <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
         <item name="cardBackgroundColor">@color/cardview_dark_background</item>
 
         <!--<item name="android:popupMenuStyle">@style/PopupMenuCustom</item>-->
@@ -36,29 +35,32 @@
     </style>
 
     <style name="colorThemeDark">
-        <item name="colorPrimary">@color/darkTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/darkTheme_background_color</item>
-        <item name="colorAccent">@color/darkTheme_accent_color</item>
+        <item name="colorPrimary">@color/darkTheme_accent_color</item>
+        <item name="colorSecondary">@color/darkTheme_accent_color</item>
+        <item name="colorSurface">@color/darkTheme_background_color</item>
+        <item name="colorOnSurface">@color/darkTheme_text_color</item>
         <item name="android:colorBackground">@color/darkTheme_background_color</item>
         <item name="cardBackgroundColor">@color/cardview_dark_background</item>
         <item name="android:textColor">@color/darkTheme_text_color</item>
     </style>
 
     <style name="colorThemeGreen">
-        <item name="colorPrimary">@color/darkTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/darkTheme_background_color</item>
-        <item name="colorAccent">#0f0</item>
-        <item name="android:buttonStyle">@style/buttonBlackText</item>
+        <item name="colorPrimary">#0f0</item>
+        <item name="colorSecondary">#0f0</item>
+        <item name="colorSurface">@color/darkTheme_background_color</item>
+        <item name="colorOnSurface">#0f0</item>
+        <item name="materialButtonStyle">@style/buttonBlackText</item>
         <item name="android:colorBackground">@color/darkTheme_background_color</item>
         <item name="cardBackgroundColor">@color/cardview_dark_background</item>
         <item name="android:textColor">#0f0</item>
     </style>
 
     <style name="colorThemeAmber">
-        <item name="colorPrimary">@color/darkTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/darkTheme_background_color</item>
-        <item name="colorAccent">#FFB000</item>
-        <item name="android:buttonStyle">@style/buttonBlackText</item>
+        <item name="colorPrimary">#FFB000</item>
+        <item name="colorSecondary">#FFB000</item>
+        <item name="colorSurface">@color/darkTheme_background_color</item>
+        <item name="colorOnSurface">#ffb000</item>
+        <item name="materialButtonStyle">@style/buttonBlackText</item>
         <item name="android:colorBackground">@color/darkTheme_background_color</item>
         <item name="cardBackgroundColor">@color/cardview_dark_background</item>
         <item name="android:textColor">#ffb000</item>
@@ -66,31 +68,52 @@
 
 
     <style name="colorThemeDefault">
-        <item name="colorPrimary">@color/finnmglasTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/finnmglasTheme_background_color</item>
-        <item name="colorAccent">@color/finnmglasTheme_accent_color</item>
+        <item name="colorPrimary">@color/finnmglasTheme_accent_color</item>
+        <item name="colorSecondary">@color/finnmglasTheme_accent_color</item>
+        <item name="colorSurface">@color/finnmglasTheme_background_color</item>
+        <item name="colorOnSurface">@color/finnmglasTheme_text_color</item>
         <item name="android:colorBackground">@color/finnmglasTheme_background_color</item>
         <item name="cardBackgroundColor">@color/cardview_dark_background</item>
         <item name="android:textColor">@color/finnmglasTheme_text_color</item>
     </style>
 
     <style name="colorThemeLight" tools:keep="@style/colorThemeLight">
-        <item name="colorPrimary">@color/lightTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/lightTheme_background_color</item>
-        <item name="colorAccent">@color/lightTheme_accent_color</item>
+        <item name="colorPrimary">@color/lightTheme_accent_color</item>
+        <item name="colorSecondary">@color/lightTheme_accent_color</item>
+        <item name="colorSurface">@color/lightTheme_background_color</item>
+        <item name="colorOnSurface">@color/lightTheme_text_color</item>
         <item name="android:colorBackground">@color/lightTheme_background_color</item>
         <item name="cardBackgroundColor">@color/cardview_light_background</item>
         <item name="android:textColor">@color/lightTheme_text_color</item>
     </style>
 
     <style name="colorThemeDynamic">
-        <!--parent="Theme.Material3.Dark.NoActionBar"-->
-        <item name="colorPrimary">@color/material_dynamic_primary70</item>
-        <item name="colorPrimaryDark">@color/material_dynamic_primary50</item>
-        <item name="colorAccent">@color/material_dynamic_tertiary50</item>
+        <!-- Primary -->
+        <item name="colorPrimary">@color/material_dynamic_primary80</item>
+        <item name="colorOnPrimary">@color/material_dynamic_primary20</item>
+        <item name="colorPrimaryContainer">@color/material_dynamic_primary30</item>
+        <item name="colorOnPrimaryContainer">@color/material_dynamic_primary90</item>
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/material_dynamic_secondary80</item>
+        <item name="colorOnSecondary">@color/material_dynamic_secondary20</item>
+        <item name="colorSecondaryContainer">@color/material_dynamic_secondary30</item>
+        <item name="colorOnSecondaryContainer">@color/material_dynamic_secondary90</item>
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/material_dynamic_tertiary80</item>
+        <item name="colorOnTertiary">@color/material_dynamic_tertiary20</item>
+        <item name="colorTertiaryContainer">@color/material_dynamic_tertiary30</item>
+        <item name="colorOnTertiaryContainer">@color/material_dynamic_tertiary90</item>
+        <!-- Neutral / Surface -->
+        <item name="colorSurface">@color/material_dynamic_neutral10</item>
+        <item name="colorOnSurface">@color/material_dynamic_neutral90</item>
+        <item name="colorSurfaceVariant">@color/material_dynamic_neutral_variant30</item>
+        <item name="colorOnSurfaceVariant">@color/material_dynamic_neutral_variant80</item>
+        <item name="colorOutline">@color/material_dynamic_neutral_variant60</item>
         <item name="android:colorBackground">@color/material_dynamic_neutral10</item>
-        <item name="cardBackgroundColor">@color/cardview_dark_background</item>
-        <item name="android:textColor">@color/material_dynamic_neutral_variant90</item>
+        <item name="colorOnBackground">@color/material_dynamic_neutral90</item>
+        <!-- Custom overrides -->
+        <item name="cardBackgroundColor">@color/material_dynamic_neutral_variant30</item>
+        <item name="android:textColor">@color/material_dynamic_neutral90</item>
     </style>
 
     <style name="textShadow">
@@ -147,8 +170,7 @@
         <item name="android:popupBackground">#252827</item>
     </style>
 
-    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:color">#000000</item>
+    <style name="AlertDialogCustom" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="android:textColor">@color/text_color_toggle</item>
         <item name="android:shadowRadius">0</item>
         <item name="android:shadowDx">0</item>

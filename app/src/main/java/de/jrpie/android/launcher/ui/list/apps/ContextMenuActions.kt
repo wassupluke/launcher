@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.net.toUri
 import com.google.android.material.snackbar.Snackbar
 import de.jrpie.android.launcher.R
@@ -92,7 +93,7 @@ fun AbstractAppInfo.toggleHidden(view: View) {
 }
 
 fun AbstractDetailedAppInfo.showRenameDialog(context: Context) {
-    AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
+    MaterialAlertDialogBuilder(context, R.style.AlertDialogCustom).apply {
         setTitle(context.getString(R.string.dialog_rename_title, getLabel()))
         setView(R.layout.dialog_rename_app)
         setNegativeButton(android.R.string.cancel) { d, _ -> d.cancel() }

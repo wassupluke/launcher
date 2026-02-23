@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -64,7 +64,7 @@ class WidgetPanelAction(val widgetPanelId: Int) : Action {
     }
 
     override fun showConfigurationDialog(context: Context, onSuccess: (Action) -> Unit) {
-        AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
+        MaterialAlertDialogBuilder(context, R.style.AlertDialogCustom).apply {
             setTitle(R.string.dialog_select_widget_panel_title)
             setNegativeButton(R.string.dialog_cancel) { _, _ -> }
             setView(R.layout.dialog_select_widget_panel)
