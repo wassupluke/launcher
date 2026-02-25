@@ -172,8 +172,24 @@ fun importConfig(context: Context, inputStream: InputStream): ImportResult {
     val userIdRemap = buildUserIdRemap(context, envelope)
     val exportable = getExportableEntries()
 
-    val editor = LauncherPreferences.getSharedPreferences().edit()
+    // Preserve non-exportable preferences (widgets, shortcuts, etc.) across import
+    val prefs = LauncherPreferences.getSharedPreferences()
+    val preserved = prefs.all.filterKeys { it !in exportable }
+
+    val editor = prefs.edit()
     editor.clear()
+
+    // Restore non-exportable preferences
+    for ((key, value) in preserved) {
+        when (value) {
+            is Boolean -> editor.putBoolean(key, value)
+            is Int -> editor.putInt(key, value)
+            is Long -> editor.putLong(key, value)
+            is Float -> editor.putFloat(key, value)
+            is String -> editor.putString(key, value)
+            is Set<*> -> @Suppress("UNCHECKED_CAST") editor.putStringSet(key, value as Set<String>)
+        }
+    }
 
     for ((key, value) in preferences) {
         val type = exportable[key]
