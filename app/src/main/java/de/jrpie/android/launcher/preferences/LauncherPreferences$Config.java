@@ -89,8 +89,8 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                         @Preference(name = "lock_method", type = LockMethod.class, defaultValue = "DEVICE_ADMIN"),
                 }),
                 @PreferenceGroup(name = "widgets", prefix = "settings_widgets_", suffix = "_key", value = {
-                        @Preference(name = "widgets", type = Set.class, serializer = SetWidgetSerializer.class, export = false),
-                        @Preference(name = "custom_panels", type = Set.class, serializer = SetWidgetPanelSerializer.class, export = false)
+                        @Preference(name = "widgets", type = Set.class, serializer = SetWidgetSerializer.class),
+                        @Preference(name = "custom_panels", type = Set.class, serializer = SetWidgetPanelSerializer.class)
                 }),
         })
 public final class LauncherPreferences$Config {

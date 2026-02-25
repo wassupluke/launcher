@@ -9,6 +9,8 @@ import android.util.Log
 import de.jrpie.android.launcher.actions.Gesture
 import de.jrpie.android.launcher.apps.AbstractAppInfo.Companion.INVALID_USER
 import de.jrpie.android.launcher.apps.getPrivateSpaceUser
+import de.jrpie.android.launcher.widgets.AppWidget
+import de.jrpie.android.launcher.widgets.Widget
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -95,6 +97,12 @@ private fun getExportableEntries(): Map<String, String> {
 
 // --- Export ---
 
+/**
+ * The widgets preference key. AppWidget entries (which contain device-specific
+ * AppWidgetHost IDs) are filtered out during export and merged back during import.
+ */
+private val WIDGETS_KEY by lazy { LauncherPreferences.widgets().keys().widgets() }
+
 fun exportConfig(context: Context, outputStream: OutputStream) {
     val prefs = LauncherPreferences.getSharedPreferences()
     val exportable = getExportableEntries()
@@ -103,7 +111,12 @@ fun exportConfig(context: Context, outputStream: OutputStream) {
     val prefsMap = mutableMapOf<String, JsonElement>()
     for ((key, type) in exportable) {
         if (!prefs.contains(key)) continue
-        prefsMap[key] = readPref(prefs, key, type)
+        if (key == WIDGETS_KEY) {
+            // Filter out AppWidget entries — their IDs are device-specific
+            prefsMap[key] = exportWidgetsFiltered(prefs, key)
+        } else {
+            prefsMap[key] = readPref(prefs, key, type)
+        }
     }
 
     val envelope = JsonObject(
@@ -172,8 +185,13 @@ fun importConfig(context: Context, inputStream: InputStream): ImportResult {
     val userIdRemap = buildUserIdRemap(context, envelope)
     val exportable = getExportableEntries()
 
-    // Preserve non-exportable preferences (widgets, shortcuts, etc.) across import
     val prefs = LauncherPreferences.getSharedPreferences()
+
+    // Save existing AppWidget entries — they have device-specific host IDs
+    // that can't be restored from an export file
+    val existingAppWidgets = preserveAppWidgets(prefs)
+
+    // Preserve non-exportable preferences (pinned shortcuts, etc.) across import
     val preserved = prefs.all.filterKeys { it !in exportable }
 
     val editor = prefs.edit()
@@ -198,7 +216,13 @@ fun importConfig(context: Context, inputStream: InputStream): ImportResult {
             continue
         }
         try {
-            writePref(editor, key, type, remapUserIds(value, userIdRemap))
+            val remapped = remapUserIds(value, userIdRemap)
+            if (key == WIDGETS_KEY) {
+                // Merge imported portable widgets with existing AppWidget entries
+                importWidgetsMerged(editor, key, remapped, existingAppWidgets)
+            } else {
+                writePref(editor, key, type, remapped)
+            }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to import preference '$key': ${e.message}")
         }
@@ -289,6 +313,55 @@ private fun remapUserIdsInJsonElement(element: JsonElement, remap: Map<Int, Int>
         is JsonArray -> JsonArray(element.map { remapUserIdsInJsonElement(it, remap) })
         else -> element
     }
+}
+
+// --- Widget export/import helpers ---
+
+/**
+ * Export the widgets set, filtering out AppWidget entries (device-specific host IDs).
+ * ClockWidget, DebugInfoWidget, etc. are fully portable and included.
+ */
+private fun exportWidgetsFiltered(prefs: SharedPreferences, key: String): JsonArray {
+    val serializedWidgets = prefs.getStringSet(key, null) ?: return JsonArray(emptyList())
+    val portable = serializedWidgets.filter { serialized ->
+        try {
+            Widget.deserialize(serialized) !is AppWidget
+        } catch (_: Exception) {
+            false
+        }
+    }
+    return JsonArray(portable.map { JsonPrimitive(it) })
+}
+
+/**
+ * Save existing AppWidget entries from SharedPreferences so they can be
+ * merged back after import (their host IDs are only valid on this device).
+ */
+private fun preserveAppWidgets(prefs: SharedPreferences): Set<String> {
+    val serializedWidgets = prefs.getStringSet(WIDGETS_KEY, null) ?: return emptySet()
+    return serializedWidgets.filter { serialized ->
+        try {
+            Widget.deserialize(serialized) is AppWidget
+        } catch (_: Exception) {
+            false
+        }
+    }.toSet()
+}
+
+/**
+ * Import portable widgets from the export file and merge with existing
+ * AppWidget entries that were preserved from the current device.
+ */
+private fun importWidgetsMerged(
+    editor: SharedPreferences.Editor,
+    key: String,
+    value: JsonElement,
+    existingAppWidgets: Set<String>
+) {
+    val imported = (value as? JsonArray)
+        ?.mapNotNull { (it as? JsonPrimitive)?.content }
+        ?.toSet() ?: emptySet()
+    editor.putStringSet(key, imported + existingAppWidgets)
 }
 
 // --- SharedPreferences <-> JSON helpers ---
