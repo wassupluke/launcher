@@ -34,7 +34,7 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                 @PreferenceGroup(name = "apps", prefix = "settings_apps_", suffix = "_key", value = {
                         @Preference(name = "favorites", type = Set.class, serializer = SetAbstractAppInfoPreferenceSerializer.class),
                         @Preference(name = "hidden", type = Set.class, serializer = SetAbstractAppInfoPreferenceSerializer.class),
-                        @Preference(name = "pinned_shortcuts", type = Set.class, serializer = SetPinnedShortcutInfoPreferenceSerializer.class),
+                        @Preference(name = "pinned_shortcuts", type = Set.class, serializer = SetPinnedShortcutInfoPreferenceSerializer.class, export = false),
                         @Preference(name = "custom_names", type = HashMap.class, serializer = MapAbstractAppInfoStringPreferenceSerializer.class),
                         @Preference(name = "hide_bound_apps", type = boolean.class, defaultValue = "false"),
                         @Preference(name = "hide_paused_apps", type = boolean.class, defaultValue = "false"),
@@ -89,8 +89,8 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                         @Preference(name = "lock_method", type = LockMethod.class, defaultValue = "DEVICE_ADMIN"),
                 }),
                 @PreferenceGroup(name = "widgets", prefix = "settings_widgets_", suffix = "_key", value = {
-                        @Preference(name = "widgets", type = Set.class, serializer = SetWidgetSerializer.class),
-                        @Preference(name = "custom_panels", type = Set.class, serializer = SetWidgetPanelSerializer.class)
+                        @Preference(name = "widgets", type = Set.class, serializer = SetWidgetSerializer.class, export = false),
+                        @Preference(name = "custom_panels", type = Set.class, serializer = SetWidgetPanelSerializer.class, export = false)
                 }),
         })
 public final class LauncherPreferences$Config {
