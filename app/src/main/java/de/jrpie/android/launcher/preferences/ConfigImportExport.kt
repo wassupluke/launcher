@@ -235,7 +235,7 @@ fun importConfig(context: Context, inputStream: InputStream): ImportResult {
         )
     }
 
-    editor.apply()
+    editor.commit()
 
     migratePreferencesToNewVersion(context)
 
