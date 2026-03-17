@@ -81,9 +81,11 @@ class PinShortcutActivity : UIObjectActivity() {
             return
         }
 
-        val detailedPinnedShortcutInfo = DetailedPinnedShortcutInfo(this, request.shortcutInfo!!)
+        val shortcutInfo = request.shortcutInfo ?: run { finish(); return }
 
-        binding.pinShortcutLabel.text = request.shortcutInfo!!.shortLabel ?: "?"
+        val detailedPinnedShortcutInfo = DetailedPinnedShortcutInfo(this, shortcutInfo)
+
+        binding.pinShortcutLabel.text = shortcutInfo.shortLabel ?: "?"
         binding.pinShortcutLabel.setCompoundDrawables(
             detailedPinnedShortcutInfo.getIcon(this).also {
                 val size = (40 * resources.displayMetrics.density).toInt()
@@ -101,7 +103,7 @@ class PinShortcutActivity : UIObjectActivity() {
                     val viewAdapter = GestureRecyclerAdapter(dialog.context) { gesture ->
                         acceptRequest()
                         LauncherPreferences.getSharedPreferences().edit {
-                            ShortcutAction(PinnedShortcutInfo(request.shortcutInfo!!)).bindToGesture(
+                            ShortcutAction(PinnedShortcutInfo(shortcutInfo)).bindToGesture(
                                 this,
                                 gesture.id
                             )
