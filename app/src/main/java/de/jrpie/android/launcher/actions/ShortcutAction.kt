@@ -27,8 +27,14 @@ class ShortcutAction(val shortcut: PinnedShortcutInfo) : Action {
         try {
             shortcut.getShortcutInfo(context)?.let {
                 launcherApps.startShortcut(it, rect, null)
+            } ?: run {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.toast_cant_launch_app),
+                    Toast.LENGTH_LONG
+                ).show()
+                return false
             }
-            // TODO: handle null
         } catch (e: Exception) {
             Log.w("Launcher", "Couldn't launch shortcut: $this", e)
             Toast.makeText(
