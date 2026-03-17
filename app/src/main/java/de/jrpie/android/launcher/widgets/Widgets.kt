@@ -80,10 +80,12 @@ fun updateWidget(widget: Widget) {
 }
 
 
-// TODO: this needs to be improved
 fun generateInternalId(): Int {
-    val minId =
-        min(-5, (LauncherPreferences.widgets().widgets() ?: setOf()).minOfOrNull { it.id } ?: 0)
+    val homeWidgetIds = (LauncherPreferences.widgets().widgets() ?: setOf()).map { it.id }
+    val panelWidgetIds = (LauncherPreferences.widgets().customPanels() ?: setOf())
+        .flatMap { it.getWidgets() }
+        .map { it.id }
+    val minId = min(-5, (homeWidgetIds + panelWidgetIds).minOrNull() ?: 0)
     return minId - 1
 }
 
