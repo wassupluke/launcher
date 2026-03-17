@@ -3,6 +3,7 @@ package de.jrpie.android.launcher.ui
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import de.jrpie.android.launcher.Application
 import de.jrpie.android.launcher.actions.Action
@@ -13,6 +14,7 @@ import de.jrpie.android.launcher.openTutorial
 import de.jrpie.android.launcher.preferences.LauncherPreferences
 import de.jrpie.android.launcher.ui.util.LauncherGestureActivity
 
+private const val LOG_TAG = "HomeActivity"
 
 /**
  * [HomeActivity] is the actual application launcher.
@@ -98,8 +100,8 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
         try {
             (application as Application).appWidgetHost.stopListening()
         } catch (e: Exception) {
-            // Throws a NullPointerException on Android 12 an earlier, see #172
-            e.printStackTrace()
+            // Throws a NullPointerException on Android 12 and earlier, see #172
+            Log.w(LOG_TAG, "stopListening failed (known issue on Android ≤12, #172)", e)
         }
         super.onPause()
     }
