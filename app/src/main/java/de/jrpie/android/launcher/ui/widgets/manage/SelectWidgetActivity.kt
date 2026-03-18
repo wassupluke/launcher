@@ -37,12 +37,14 @@ private const val REQUEST_WIDGET_PERMISSION = 29
 class SelectWidgetActivity : UIObjectActivity() {
     lateinit var binding: ActivitySelectWidgetBinding
     var widgetPanelId: Int = WidgetPanel.HOME.id
+    private var pendingWidgetId: Int = -1
 
     private fun tryBindWidget(info: LauncherWidgetProvider) {
         when (info) {
             is LauncherAppWidgetProvider -> {
                 val widgetId =
                     (applicationContext as Application).appWidgetHost.allocateAppWidgetId()
+                pendingWidgetId = widgetId
                 if (bindAppWidgetOrRequestPermission(
                         this,
                         info.info,
@@ -50,6 +52,7 @@ class SelectWidgetActivity : UIObjectActivity() {
                         REQUEST_WIDGET_PERMISSION
                     )
                 ) {
+                    pendingWidgetId = -1
                     setResult(
                         RESULT_OK,
                         Intent().also {
@@ -101,12 +104,21 @@ class SelectWidgetActivity : UIObjectActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == REQUEST_WIDGET_PERMISSION && resultCode == RESULT_OK) {
-            data ?: return
-            val provider =
-                (data.getSerializableExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER) as? AppWidgetProviderInfo)
-                    ?: return
-            tryBindWidget(LauncherAppWidgetProvider(provider, this))
+        if (requestCode == REQUEST_WIDGET_PERMISSION) {
+            val widgetId = pendingWidgetId
+            pendingWidgetId = -1
+            if (resultCode == RESULT_OK && widgetId != -1) {
+                setResult(
+                    RESULT_OK,
+                    Intent().also {
+                        it.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                        it.putExtra(EXTRA_PANEL_ID, widgetPanelId)
+                    }
+                )
+                finish()
+            } else if (widgetId != -1) {
+                (applicationContext as Application).appWidgetHost.deleteAppWidgetId(widgetId)
+            }
         }
     }
 
