@@ -1,3 +1,8 @@
++++
+  title = 'Architecture'
+  weight = 20
++++
+
 # Architecture: Gesture Dispatch and Extension Guide
 
 This document describes the gesture dispatch pipeline and provides step-by-step guides for
