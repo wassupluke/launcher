@@ -40,12 +40,21 @@ class Application : android.app.Application() {
     private val profileAvailabilityBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             // TODO: only update specific apps
-            // use Intent.EXTRA_USER
+            // The intent carries Intent.EXTRA_USER identifying which managed/private-space profile
+            // became available or unavailable. Instead of reloading the entire app list, we should
+            // only add or remove the apps belonging to that specific user profile, which would avoid
+            // an expensive full scan (getActivityList across all profiles) on every profile toggle.
             loadApps()
         }
     }
 
     // TODO: only update specific apps
+    // Currently every package change (add/remove/update) triggers a full reload of the app list via
+    // getApps(), which queries LauncherApps.getActivityList() for every user profile and re-sorts
+    // the result. This is correct but wasteful. The ideal approach for onPackageAdded/Removed/Changed
+    // would be to surgically insert, remove, or refresh just the affected package's entries in the
+    // existing apps LiveData list, avoiding the cost of a full scan. The full-reload fallback is kept
+    // as a safe baseline while targeted updates are not yet implemented.
     private val launcherAppsCallback = object : LauncherApps.Callback() {
         override fun onPackageRemoved(p0: String?, p1: UserHandle?) {
             loadApps()
@@ -60,19 +69,39 @@ class Application : android.app.Application() {
         }
 
         override fun onPackagesAvailable(p0: Array<out String>?, p1: UserHandle?, p2: Boolean) {
-            // TODO
+            // TODO: call loadApps() (or a targeted reload for the listed packages).
+            // This callback fires when a set of packages that were previously unavailable (e.g.
+            // because the user profile hosting them was in quiet mode) becomes available again.
+            // Without handling it, the app list will not update when a managed or private-space
+            // profile is unlocked / quiet mode is toggled off, so apps from that profile will
+            // remain absent until the user triggers a reload some other way.
         }
 
         override fun onPackagesSuspended(packageNames: Array<out String>?, user: UserHandle?) {
-            // TODO
+            // TODO: call loadApps() (or a targeted reload for the listed packages).
+            // This callback fires when the device policy controller (DPC) or Digital Wellbeing
+            // suspends a set of packages. Suspended apps show a system dialog when launched instead
+            // of starting normally. Without handling it, the launcher's app list may still show the
+            // suspended apps as if they were launchable, and any "hide paused apps" logic that
+            // depends on quiet mode will not react to DPC suspension.
         }
 
         override fun onPackagesUnsuspended(packageNames: Array<out String>?, user: UserHandle?) {
-            // TODO
+            // TODO: call loadApps() (or a targeted reload for the listed packages).
+            // Counterpart to onPackagesSuspended: fires when a previously suspended set of packages
+            // is restored to normal. Without handling it, apps that were hidden or marked as
+            // suspended by an earlier callback will remain in that state in the list even after the
+            // suspension is lifted.
         }
 
         override fun onPackagesUnavailable(p0: Array<out String>?, p1: UserHandle?, p2: Boolean) {
-            // TODO
+            // TODO: call loadApps() (or a targeted reload for the listed packages).
+            // This callback fires when packages become unavailable because the profile hosting them
+            // enters quiet mode (e.g. managed profile paused, private space locked). Without
+            // handling it, apps from the affected profile will continue to appear in the launcher's
+            // app list after the profile is paused, making them appear launchable when they are not.
+            // The boolean parameter indicates whether the packages are being replaced (e.g. during
+            // an update-while-unavailable scenario).
         }
 
         override fun onPackageLoadingProgressChanged(
@@ -80,7 +109,12 @@ class Application : android.app.Application() {
             user: UserHandle,
             progress: Float
         ) {
-            // TODO
+            // TODO: surface incremental installation progress in the app list (API 31+).
+            // This callback fires while a package is being installed incrementally (via the
+            // Incremental File System). Until progress reaches 1.0f the app may appear in the
+            // launcher but will fail to launch if required components are not yet on-device.
+            // A full implementation would update a progress indicator on the corresponding app
+            // entry in the list, or suppress the entry until installation is complete.
         }
 
         override fun onShortcutsChanged(
@@ -88,7 +122,14 @@ class Application : android.app.Application() {
             shortcuts: MutableList<ShortcutInfo>,
             user: UserHandle
         ) {
-            // TODO
+            // TODO: call loadApps() when pinned shortcuts are affected by this change.
+            // This callback fires when the dynamic or pinned shortcuts published by a package
+            // change (e.g. the app revokes or republishes them). Pinned shortcuts are stored in
+            // LauncherPreferences and surfaced in the app list as DetailedPinnedShortcutInfo
+            // entries. If a shortcut the user has pinned is revoked, its entry should be removed
+            // from the list (or marked as invalid) so the user is not left with a broken launcher
+            // binding. Currently the list is not refreshed on shortcut changes, so stale shortcut
+            // entries can persist until the next full reload.
         }
     }
 
@@ -104,7 +145,13 @@ class Application : android.app.Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // TODO  Error: Invalid resource ID 0x00000000.
+        // TODO: re-enable Material You dynamic color theming once the resource ID crash is resolved.
+        // DynamicColors.applyToActivitiesIfAvailable(this) currently throws an
+        // "Invalid resource ID 0x00000000" error at runtime, likely because the launcher's minimal
+        // theme does not declare the attribute slots that the Material dynamic-color overlay expects
+        // to override. Until the theme is extended to include those attributes (or a workaround is
+        // found), this call is commented out and dynamic colors remain unavailable to users on
+        // Android 12+ devices that support them.
         // DynamicColors.applyToActivitiesIfAvailable(this)
 
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
