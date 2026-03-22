@@ -71,7 +71,7 @@ Widget identity is based solely on `id` (`equals` and `hashCode` delegate to `id
 
 File: `widgets/ClockWidget.kt`
 
-The built-in clock widget. Creates a `ClockView` which renders two `TextClock` views (date and time) using format strings derived from `LauncherPreferences.clock()`. Clicking the time portion fires `Gesture.TIME`; clicking the date portion fires `Gesture.DATE`. Not configurable. Uses a negative internal ID allocated by `generateInternalId()`.
+The built-in clock widget. Creates a `ClockView` which renders two `TextClock` views (date and time) using format strings derived from `LauncherPreferences.clock()`. Which gesture is fired by each view depends on the `LauncherPreferences.clock().flipDateTime()` preference: when `flipDateTime` is false, clicking the time portion fires `Gesture.TIME` and clicking the date portion fires `Gesture.DATE`; when `flipDateTime` is true, the gestures are swapped. Not configurable. Uses a negative internal ID allocated by `generateInternalId()`.
 
 ### `AppWidget` (`@SerialName("widget:app")`)
 
@@ -81,7 +81,7 @@ Wraps an Android app widget. The `id` field is the Android `AppWidget` ID. On `c
 
 `AppWidget` also stores `packageName`, `className`, and `user` (user handle hash) to support future restore-on-reinstall, though this path is not yet implemented.
 
-The default `allowInteraction` for `AppWidget` is `false` on the home panel and `true` on custom panels.
+The default `allowInteraction` for `AppWidget` depends on which constructor is used. The constructor that takes `AppWidgetProviderInfo` sets `allowInteraction = panelId != WidgetPanel.HOME.id` (i.e., `false` on the home panel, `true` on custom panels). The primary constructor (without `AppWidgetProviderInfo`) defaults unconditionally to `false` regardless of panel.
 
 ### `DebugInfoWidget` (`@SerialName("widget:debuginfo")`)
 
@@ -148,10 +148,10 @@ File: `ui/widgets/WidgetContainerView.kt`
 - `onLayout` places each child at the absolute pixel rect from its `WidgetPosition`.
 
 **Updating widgets:**
-`updateWidgets(activity, widgets)` clears all current child views and recreates them from the provided collection, filtered to `widgetPanelId`. Each widget's `createView(activity)` is called and added with a `LayoutParams` wrapping its `WidgetPosition`.
+`updateWidgets(activity, widgets)` clears all current child views and recreates them from the provided collection, filtered to `widgetPanelId`. Each widget's `createView(activity)` is called and added with a `LayoutParams` wrapping its `WidgetPosition`. The resulting views are tracked in the internal `widgetViewById` map (keyed by widget `id`) for use during touch interception and layout.
 
 **Touch interception:**
-`onInterceptTouchEvent` checks whether the touched point falls within a widget that has `allowInteraction = false`. If so, it intercepts (consumes) the event so that the gesture detector in `LauncherGestureActivity` can still see it.
+`onInterceptTouchEvent` checks whether the touched point falls within a widget that has `allowInteraction = false`. If so, it intercepts the event, which prevents the event from being delivered to the child widget. Because the event is never consumed by a child, it propagates up to the parent activity's `TouchGestureDetector` as a normal raw event.
 
 ## Android AppWidget Integration
 
@@ -208,10 +208,10 @@ class MyWidgetModel(
     override var id: Int,
     override var position: WidgetPosition,
     override val panelId: Int,
-    override var allowInteraction: Boolean = false
+    override var allowInteraction: Boolean = true  // true for display widgets; AppWidget defaults to false on home panel
 ) : Widget() {
 
-    override fun createView(activity: Activity): View = MyWidget(activity, null, id)
+    override fun createView(activity: Activity): View? = MyWidget(activity, null, id)
 
     override fun findView(views: Sequence<View>): MyWidget? =
         views.mapNotNull { it as? MyWidget }.firstOrNull { it.appWidgetId == id }
