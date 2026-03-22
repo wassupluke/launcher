@@ -23,8 +23,8 @@ TouchGestureDetector.onTouchEvent()
       triangle shape, diagonal angle, tap-combo state.
     - Calls variant selectors: getDoubleVariant(), getEdgeVariant(),
       getTapComboVariant(), getTriangleVariant() on a base Gesture.
-    - Checks Gesture.isEnabled() (honours edgeSwipe / doubleSwipe /
-      diagonalSwipe preference flags).
+    - Reads LauncherPreferences.enabled_gestures() flags directly
+      (edgeSwipe / doubleSwipe / diagonalSwipe) to filter variants.
     - Invokes the resolved Gesture: gesture(context)
         |
         v
@@ -108,8 +108,9 @@ registration step is needed beyond the `@Serializable` and `@SerialName` annotat
 
 ### 3. Surface in SelectActionActivity
 
-Open `ui/list/SelectActionActivity.kt` (or the backing adapter) and add an entry for
-`MyAction` in the list of selectable actions so users can bind it to a gesture.
+Open `ui/list/other/ListFragmentOther.kt` (the fragment that populates the "other actions"
+tab in `SelectActionActivity`) and add an entry for `MyAction` in the list of selectable
+actions so users can bind it to a gesture.
 
 ### 4. Add strings and icons
 
@@ -186,7 +187,7 @@ the `KeyEvent` handling in `LauncherGestureActivity.onKeyDown()`.
 ### 6. Expose in Settings UI
 
 Gesture entries are listed in the settings actions screen. Check
-`ui/settings/SettingsFragmentActions.kt` (or the relevant adapter) to confirm your new
+`ui/settings/actions/SettingsFragmentActionsRecycler.kt` (or the relevant adapter) to confirm your new
 entry is automatically picked up from `Gesture.entries`, or add it explicitly if the list
 is manually curated.
 
