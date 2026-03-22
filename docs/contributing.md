@@ -15,6 +15,7 @@ There are several ways to contribute to this app:
 * You can implement a new feature yourself:
   - Create a [fork][fork] of this repository.
   - Create a new branch named `feature/<your feature>` or `fix/<your fix>` and commit your changes.
+  - Update `CHANGELOG.md` under the `[Unreleased]` section to describe your change.
   - Open a new pull request.
 
 
