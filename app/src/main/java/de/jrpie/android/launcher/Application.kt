@@ -75,15 +75,20 @@ class Application : android.app.Application() {
             // Without handling it, the app list will not update when a managed or private-space
             // profile is unlocked / quiet mode is toggled off, so apps from that profile will
             // remain absent until the user triggers a reload some other way.
+            // The boolean parameter (p2) indicates whether the packages are being replaced
+            // (i.e. returning from replacement during an update).
         }
 
         override fun onPackagesSuspended(packageNames: Array<out String>?, user: UserHandle?) {
             // TODO: call loadApps() (or a targeted reload for the listed packages).
             // This callback fires when the device policy controller (DPC) or Digital Wellbeing
-            // suspends a set of packages. Suspended apps show a system dialog when launched instead
-            // of starting normally. Without handling it, the launcher's app list may still show the
-            // suspended apps as if they were launchable, and any "hide paused apps" logic that
-            // depends on quiet mode will not react to DPC suspension.
+            // suspends a set of packages. Note: suspension is separate from quiet mode —
+            // suspended apps remain visible and launchable in the app list, but when tapped the
+            // system intercepts the launch and shows a suspension dialog instead of starting the
+            // app. Without handling it, the app list will not reflect the new suspension state.
+            // A launcher could call loadApps() and then filter on
+            // UserManager.isPackageSuspended() / ApplicationInfo.FLAG_SUSPENDED to hide or
+            // visually mark suspended apps, or simply reload so the list is fresh.
         }
 
         override fun onPackagesUnsuspended(packageNames: Array<out String>?, user: UserHandle?) {
