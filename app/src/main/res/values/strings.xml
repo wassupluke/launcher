@@ -216,9 +216,17 @@
     <string name="settings_general_choose_home_screen">Set μLauncher as home screen</string>
     <string name="settings_meta_cant_select_launcher">App Info</string>
 
-    <string name="settings_meta_show_tutorial">View µLauncher Tutorial</string>
+    <string name="settings_meta_show_tutorial">View µLauncher tutorial</string>
 
-    <string name="settings_meta_reset">Reset Settings</string>
+    <string name="settings_meta_backup_export">Export settings</string>
+    <string name="settings_meta_backup_import">Import settings</string>
+    <string name="backup_import_success">Settings restored.\nSkipped: %1$d widget(s), %2$d shortcut(s).</string>
+    <string name="backup_import_error_title">Import failed</string>
+    <string name="backup_import_error">Could not restore settings: %1$s</string>
+    <string name="backup_import_error_file">Could not open file</string>
+    <string name="backup_import_error_unsupported_version">Unsupported backup version %1$d</string>
+
+    <string name="settings_meta_reset">Reset settings</string>
     <string name="settings_meta_reset_confirm">You are going to discard all your preferences. Continue?</string>
 
     <string name="settings_meta_view_code">View source code</string>
@@ -235,7 +243,7 @@
     <string name="settings_meta_join_chat">Join μLauncher chat</string>
     <string name="settings_meta_donate">Donate</string>
 
-    <string name="settings_meta_privacy">Privacy Policy</string>
+    <string name="settings_meta_privacy">Privacy policy</string>
 
     <string name="settings_meta_contact">Contact the original developer</string>
 
@@ -410,7 +418,7 @@
     <string name="dialog_consent_accessibility_title">Activating the Accessibility Service</string>
     <string name="dialog_consent_accessibility_ok">Activate Accessibility Service</string>
     <string name="dialog_cancel">Cancel</string>
-    <string name="settings_meta_licenses">Open Source Licenses</string>
+    <string name="settings_meta_licenses">Open source licenses</string>
     <string name="legal_info_title">Open Source Licenses</string>
     <string name="toast_activity_not_found_search_web">No app found to handle search.</string>
     <string name="toast_activity_not_found_browser">Can\'t open URL: no browser found.</string>

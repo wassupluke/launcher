@@ -17,10 +17,17 @@
 
 
         <Button
-            android:id="@+id/settings_meta_button_view_tutorial"
+            android:id="@+id/settings_meta_button_backup_export"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_meta_show_tutorial"
+            android:text="@string/settings_meta_backup_export"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/settings_meta_button_backup_import"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_meta_backup_import"
             android:textAllCaps="false" />
 
         <Button
@@ -32,7 +39,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="64sp" />
+            android:layout_height="36sp" />
 
         <Button
             android:id="@+id/settings_meta_button_view_code"
@@ -57,7 +64,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="64sp" />
+            android:layout_height="36sp" />
 
         <Button
             android:id="@+id/settings_meta_button_join_chat"
@@ -89,7 +96,14 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="64sp" />
+            android:layout_height="36sp" />
+
+        <Button
+            android:id="@+id/settings_meta_button_view_tutorial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_meta_show_tutorial"
+            android:textAllCaps="false" />
 
         <Button
             android:id="@+id/settings_meta_button_privacy"
@@ -107,7 +121,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="32sp" />
+            android:layout_height="18sp" />
 
         <TextView
             android:id="@+id/settings_meta_text_version"

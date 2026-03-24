@@ -271,3 +271,14 @@ Remove the top status bar from the home screen.
 Remove the navigation bar from the home screen. Enabling this setting may make it difficult to use the device if gestures are not set up properly.
 
 **type:**&nbsp;`toggle`
+
+
+## Backup & Restore
+
+### Export settings
+
+Exports all settings (gesture bindings, theme, app list preferences, etc.) to a JSON file using the system file picker. See [Backup & Restore](backup-restore.md) for details on what is included.
+
+### Import settings
+
+Restores settings from a previously exported JSON file. A confirmation dialog shows the number of items that could not be restored (widgets and pinned shortcuts are excluded by design).
