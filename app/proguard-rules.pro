@@ -28,3 +28,4 @@
 -dontwarn javax.annotation.processing.AbstractProcessor
 -dontwarn javax.annotation.processing.SupportedAnnotationTypes
 -dontwarn javax.annotation.processing.SupportedSourceVersion
+-dontwarn lombok.Generated

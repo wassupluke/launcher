@@ -12,6 +12,13 @@ pluginManagement {
     }
 }
 
+includeBuild("libs/android-preference-annotations") {
+    dependencySubstitution {
+        substitute(module("eu.jonahbauer:android-preference-annotations"))
+            .using(project(":"))
+    }
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
