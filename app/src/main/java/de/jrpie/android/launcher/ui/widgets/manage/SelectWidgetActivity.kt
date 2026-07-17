@@ -100,6 +100,17 @@ class SelectWidgetActivity : UIObjectActivity() {
             finish()
         }
 
+        binding.selectWidgetSort.setOnClickListener {
+            viewAdapter.sortAlphabetical = !viewAdapter.sortAlphabetical
+            binding.selectWidgetSort.setImageResource(
+                if (viewAdapter.sortAlphabetical) {
+                    R.drawable.baseline_sort_alpha_24
+                } else {
+                    R.drawable.baseline_menu_24
+                }
+            )
+        }
+
         binding.selectWidgetSearchview.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
 
@@ -135,14 +146,32 @@ class SelectWidgetActivity : UIObjectActivity() {
         private val grayscale = colorTheme.monochromeIcons()
         private val allWidgets = getAppWidgetProviders(this@SelectWidgetActivity)
         private var widgets = allWidgets
+        private var searchString = ""
+        var sortAlphabetical = false
+            set(value) {
+                field = value
+                updateWidgetList()
+            }
 
         fun setSearchString(query: String) {
-            val q = query.trim()
-            widgets = if (q.isEmpty()) {
-                allWidgets
-            } else {
-                allWidgets.filter { it.matchesSearch(q) }
-            }
+            searchString = query.trim()
+            updateWidgetList()
+        }
+
+        private fun updateWidgetList() {
+            widgets = allWidgets
+                .filter { searchString.isEmpty() || it.matchesSearch(searchString) }
+                .let { list ->
+                    if (sortAlphabetical) {
+                        list.sortedWith(
+                            compareBy(String.CASE_INSENSITIVE_ORDER) {
+                                it.label?.toString() ?: ""
+                            }
+                        )
+                    } else {
+                        list
+                    }
+                }
             @Suppress("NotifyDataSetChanged")
             notifyDataSetChanged()
         }
