@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.jrpie.android.launcher.Application
@@ -98,6 +99,20 @@ class SelectWidgetActivity : UIObjectActivity() {
             setResult(RESULT_CANCELED)
             finish()
         }
+
+        binding.selectWidgetSearchview.setOnQueryTextListener(object :
+            SearchView.OnQueryTextListener {
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                viewAdapter.setSearchString(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                viewAdapter.setSearchString(newText)
+                return false
+            }
+        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -118,8 +133,19 @@ class SelectWidgetActivity : UIObjectActivity() {
         private val theme = LauncherPreferences.theme()
         private val colorTheme = theme.colorTheme()
         private val grayscale = colorTheme.monochromeIcons()
+        private val allWidgets = getAppWidgetProviders(this@SelectWidgetActivity)
+        private var widgets = allWidgets
 
-        private val widgets = getAppWidgetProviders(this@SelectWidgetActivity).toTypedArray()
+        fun setSearchString(query: String) {
+            val q = query.trim()
+            widgets = if (q.isEmpty()) {
+                allWidgets
+            } else {
+                allWidgets.filter { it.matchesSearch(q) }
+            }
+            @Suppress("NotifyDataSetChanged")
+            notifyDataSetChanged()
+        }
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
             View.OnClickListener {
