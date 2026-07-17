@@ -18,6 +18,8 @@ import de.jrpie.android.launcher.databinding.ActivitySelectWidgetBinding
 import de.jrpie.android.launcher.preferences.LauncherPreferences
 import de.jrpie.android.launcher.ui.UIObjectActivity
 import de.jrpie.android.launcher.ui.transformMonochrome
+import de.jrpie.android.launcher.ui.closeSoftKeyboard
+import de.jrpie.android.launcher.ui.openSoftKeyboard
 import de.jrpie.android.launcher.widgets.ClockWidget
 import de.jrpie.android.launcher.widgets.LauncherAppWidgetProvider
 import de.jrpie.android.launcher.widgets.LauncherClockWidgetProvider
@@ -28,6 +30,7 @@ import de.jrpie.android.launcher.widgets.bindAppWidgetOrRequestPermission
 import de.jrpie.android.launcher.widgets.generateInternalId
 import de.jrpie.android.launcher.widgets.getAppWidgetProviders
 import de.jrpie.android.launcher.widgets.updateWidget
+import kotlin.math.absoluteValue
 
 
 private const val REQUEST_WIDGET_PERMISSION = 29
@@ -93,6 +96,23 @@ class SelectWidgetActivity : UIObjectActivity() {
             setHasFixedSize(false)
             layoutManager = viewManager
             adapter = viewAdapter
+            if (LauncherPreferences.functionality().searchAutoCloseKeyboard()) {
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    var totalDy: Int = 0
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        totalDy += dy
+
+                        if (totalDy.absoluteValue > 100) {
+                            totalDy = 0
+                            closeSoftKeyboard(this@SelectWidgetActivity)
+                        }
+                    }
+                })
+            }
+        }
+
+        if (LauncherPreferences.functionality().searchAutoOpenKeyboard()) {
+            binding.selectWidgetSearchview.openSoftKeyboard(this)
         }
 
         binding.selectWidgetClose.setOnClickListener {
