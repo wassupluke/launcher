@@ -1,5 +1,6 @@
 package de.jrpie.android.launcher.actions
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -7,7 +8,6 @@ import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.os.Build
 import android.os.SystemClock
-import android.provider.Settings
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
@@ -199,23 +199,19 @@ enum class LauncherAction(
 }
 
 private fun openDefaultAssistant(context: Context) {
-    val assistantPackage = Settings.Secure.getString(
-        context.contentResolver,
-        "assistant"
-    )
-    if (assistantPackage.isNullOrEmpty()) {
-        Toast.makeText(
-	    context,
-            context.getString(R.string.toast_no_assistant_app),
-	    Toast.LENGTH_SHORT
-    	).show()
-        return
-    }
     val intent = Intent(Intent.ACTION_ASSIST).apply {
         addCategory(Intent.CATEGORY_DEFAULT)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
     }
-    context.startActivity(intent)
+    try {
+        context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.toast_no_assistant_app),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 }
 
 /* Media player actions */

@@ -284,7 +284,7 @@
     <string name="list_other_nop">Do Nothing</string>
     <string name="list_other_lock_screen">Lock Screen</string>
     <string name="list_other_torch">Toggle Torch</string>
-    <string name="list_other_assistant">Digital Assistant</string>
+    <string name="list_other_assistant">Assistant</string>
     <string name="list_other_launch_other_launcher">Launch Other Home Screen</string>
 
     <!-- Pin shortcuts -->
