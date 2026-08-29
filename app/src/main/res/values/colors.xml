@@ -6,13 +6,24 @@
     <color name="finnmglasTheme_text_color">#fff</color>
 
     <color name="darkTheme_background_color">#000</color>
-    <color name="darkTheme_card_background_color">#242424</color>
+    <color name="darkTheme_card_background_color">#181818</color>
     <color name="darkTheme_accent_color">#444</color>
     <color name="darkTheme_text_color">#fff</color>
 
     <color name="lightTheme_background_color">#fff</color>
-    <color name="lightTheme_card_background_color">#ffffff</color>
+    <color name="lightTheme_card_background_color">#dbdbdb</color>
     <color name="lightTheme_accent_color">#9999ff</color>
     <color name="lightTheme_text_color">#000</color>
+
+    <color name="greenTheme_accent_color">#0a0</color>
+    <color name="greenTheme_text_color">#0f0</color>
+    <color name="greenTheme_card_background_color">#002400</color>
+
+
+    <color name="amberTheme_accent_color">#aa6a00</color>
+    <color name="amberTheme_text_color">#ffb000</color>
+    <color name="amberTheme_card_background_color">#241800</color>
+
+
 </resources>
 
