@@ -78,6 +78,15 @@ class SelectWidgetActivity : UIObjectActivity() {
             }
         }
     }
+    private fun updateSortIcon(viewAdapter: SelectWidgetRecyclerAdapter) {
+        binding.selectWidgetSort.setImageResource(
+            if (viewAdapter.sortAlphabetical) {
+                R.drawable.baseline_sort_alpha_24
+            } else {
+                R.drawable.baseline_menu_24
+            }
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,14 +114,10 @@ class SelectWidgetActivity : UIObjectActivity() {
         }
 
         binding.selectWidgetSort.setOnClickListener {
-            binding.selectWidgetSort.setImageResource(
-                if (viewAdapter.sortAlphabetical) {
-                    R.drawable.baseline_sort_alpha_24
-                } else {
-                    R.drawable.baseline_menu_24
-                }
-            )
+            viewAdapter.sortAlphabetical = !viewAdapter.sortAlphabetical
+            updateSortIcon(viewAdapter)
         }
+        updateSortIcon(viewAdapter)
 
         binding.selectWidgetSearchview.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
