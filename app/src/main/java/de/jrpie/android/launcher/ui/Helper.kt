@@ -9,7 +9,11 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
+import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.RecyclerView
+import de.jrpie.android.launcher.preferences.LauncherPreferences
 import de.jrpie.android.launcher.preferences.theme.ColorTheme
+import kotlin.math.absoluteValue
 
 // Taken from https://stackoverflow.com/questions/47293269
 fun View.blink(
@@ -47,16 +51,43 @@ fun Drawable.transformMonochrome(grayscale: Boolean, theme: ColorTheme) {
 
 
 // Taken from https://stackoverflow.com/a/50743764
-fun View.openSoftKeyboard(context: Context) {
+private fun View.openSoftKeyboard(context: Context) {
     this.requestFocus()
     (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
         .showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
 }
 
 // https://stackoverflow.com/a/17789187
-fun closeSoftKeyboard(activity: Activity) {
+private fun closeSoftKeyboard(activity: Activity) {
     activity.currentFocus?.let { focus ->
         (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(focus.windowToken, 0)
+    }
+}
+
+/**
+ * Applies the settings [LauncherPreferences.functionality.searchAutoOpenKeyboard]
+ * and [LauncherPreferences.functionality.searchAutoCloseKeyboard]
+ * to a combination of [RecyclerView] and [SearchView]
+ *
+ * @param openKeyboard false: the keyboard is not opened; true: searchAutoOpenKeyboard setting is used.
+ *
+ * Opens keyboard if searchAutoOpenKeyboard is set.
+ */
+fun applyKeyboardSettings(activity: Activity, recyclerView: RecyclerView, searchView: SearchView, openKeyboard: Boolean = true) {
+    if (LauncherPreferences.functionality().searchAutoCloseKeyboard()) {
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            var totalDy: Int = 0
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                totalDy += dy
+                if (totalDy.absoluteValue > 100) {
+                    totalDy = 0
+                    closeSoftKeyboard(activity)
+                }
+            }
+        })
+    }
+    if (openKeyboard && LauncherPreferences.functionality().searchAutoOpenKeyboard()) {
+        searchView.openSoftKeyboard(activity)
     }
 }
