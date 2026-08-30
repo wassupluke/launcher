@@ -16,31 +16,7 @@ sealed class LauncherWidgetProvider(
     val appName: CharSequence?,
     val icon: Drawable?,
     val previewImage: Drawable?
-) {
-    fun matchesSearch(query: String): Boolean {
-        return sequenceOf(label, appName, description)
-            .filterNotNull()
-            .any { it.contains(query, ignoreCase = true) }
-    }
-}
-
-fun List<LauncherWidgetProvider>.filterAndSort(
-    query: String,
-    sortAlphabetical: Boolean
-): List<LauncherWidgetProvider> {
-    return filter { query.isEmpty() || it.matchesSearch(query) }
-        .let { list ->
-            if (sortAlphabetical) {
-                list.sortedWith(
-                    compareBy(String.CASE_INSENSITIVE_ORDER) {
-                        it.label?.toString() ?: ""
-                    }
-                )
-            } else {
-                list
-            }
-        }
-}
+)
 
 class LauncherAppWidgetProvider(
     val info: AppWidgetProviderInfo,

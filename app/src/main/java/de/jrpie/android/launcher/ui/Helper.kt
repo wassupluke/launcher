@@ -71,8 +71,6 @@ private fun closeSoftKeyboard(activity: Activity) {
  * to a combination of [RecyclerView] and [SearchView]
  *
  * @param openKeyboard false: the keyboard is not opened; true: searchAutoOpenKeyboard setting is used.
- *
- * Opens keyboard if searchAutoOpenKeyboard is set.
  */
 fun applyKeyboardSettings(activity: Activity, recyclerView: RecyclerView, searchView: SearchView, openKeyboard: Boolean = true) {
     if (LauncherPreferences.functionality().searchAutoCloseKeyboard()) {

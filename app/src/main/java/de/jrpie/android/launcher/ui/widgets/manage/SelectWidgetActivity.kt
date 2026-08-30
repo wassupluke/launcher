@@ -25,8 +25,8 @@ import de.jrpie.android.launcher.widgets.LauncherClockWidgetProvider
 import de.jrpie.android.launcher.widgets.LauncherWidgetProvider
 import de.jrpie.android.launcher.widgets.WidgetPanel
 import de.jrpie.android.launcher.widgets.WidgetPosition
+import de.jrpie.android.launcher.widgets.WidgetProviderFilter
 import de.jrpie.android.launcher.widgets.bindAppWidgetOrRequestPermission
-import de.jrpie.android.launcher.widgets.filterAndSort
 import de.jrpie.android.launcher.widgets.generateInternalId
 import de.jrpie.android.launcher.widgets.getAppWidgetProviders
 import de.jrpie.android.launcher.widgets.updateWidget
@@ -105,12 +105,11 @@ class SelectWidgetActivity : UIObjectActivity() {
         }
 
         binding.selectWidgetSort.setOnClickListener {
-            viewAdapter.sortAlphabetical = !viewAdapter.sortAlphabetical
             binding.selectWidgetSort.setImageResource(
                 if (viewAdapter.sortAlphabetical) {
-                    R.drawable.baseline_menu_24
-                } else {
                     R.drawable.baseline_sort_alpha_24
+                } else {
+                    R.drawable.baseline_menu_24
                 }
             )
         }
@@ -119,12 +118,12 @@ class SelectWidgetActivity : UIObjectActivity() {
             SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String): Boolean {
-                viewAdapter.setSearchString(query)
+                viewAdapter.query = query
                 return true
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                viewAdapter.setSearchString(newText)
+                viewAdapter.query = newText
                 return false
             }
         })
@@ -150,20 +149,24 @@ class SelectWidgetActivity : UIObjectActivity() {
         private val grayscale = colorTheme.monochromeIcons()
         private val allWidgets = getAppWidgetProviders(this@SelectWidgetActivity)
         private var widgets = allWidgets
-        private var searchString = ""
-        var sortAlphabetical = false
+        private val filter = WidgetProviderFilter("", false)
+
+        var sortAlphabetical: Boolean
+            get() { return filter.sortAlphabetical }
             set(value) {
-                field = value
+                filter.sortAlphabetical = value
                 updateWidgetList()
             }
 
-        fun setSearchString(query: String) {
-            searchString = query.trim()
-            updateWidgetList()
-        }
+        var query: String
+            get() { return filter.query }
+            set(value) {
+                filter.query = value
+                updateWidgetList()
+            }
 
         private fun updateWidgetList() {
-            widgets = allWidgets.filterAndSort(searchString, sortAlphabetical)
+            widgets = filter(allWidgets)
             @Suppress("NotifyDataSetChanged")
             notifyDataSetChanged()
         }

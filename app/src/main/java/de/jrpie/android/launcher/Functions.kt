@@ -308,4 +308,3 @@ fun writeEmail(context: Context, to: String, subject: String, text: String) {
     intent.putExtra(Intent.EXTRA_TEXT, text)
     context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_email)))
 }
-
