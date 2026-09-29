@@ -29,6 +29,9 @@ open class WidgetContainerView(
     constructor(context: Context, attrs: AttributeSet) : this(WidgetPanel.HOME.id, context, attrs)
 
     var widgetViewById = HashMap<Int, View>()
+    private var builtGeneration = -1
+
+    fun isStale(): Boolean = builtGeneration != generation
 
     open fun updateWidgets(activity: Activity, widgets: Collection<Widget>?) {
         synchronized(widgetViewById) {
@@ -38,6 +41,8 @@ open class WidgetContainerView(
             Log.i("WidgetContainer", "updating ${activity.localClassName}")
             widgetViewById.forEach { removeView(it.value) }
             widgetViewById.clear()
+            generation++
+            builtGeneration = generation
             widgets.filter { it.panelId == widgetPanelId }
                 .sortedBy { it.position.zIndex ?: 0 }
                 .forEach { widget ->
@@ -137,6 +142,8 @@ open class WidgetContainerView(
     }
 
     companion object {
+        private var generation = 0
+
         class LayoutParams : ViewGroup.LayoutParams {
             var position = WidgetPosition(0, 0, 4, 4)
 

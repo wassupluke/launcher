@@ -25,7 +25,7 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
 
     private var sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            if ( prefKey?.startsWith("display.") == true ) {
+            if (prefKey?.startsWith("display.") == true || prefKey?.startsWith("theme.") == true) {
                 recreate()
             } else if (prefKey?.startsWith("action.") == true) {
                 updateSettingsFallbackButtonVisibility()
@@ -88,8 +88,9 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
         }
     }
 
-    override fun getTheme(): Resources.Theme {
-        return modifyTheme(super.getTheme())
+    override fun onApplyThemeResource(theme: Resources.Theme, resid: Int, first: Boolean) {
+        super.onApplyThemeResource(theme, resid, first)
+        modifyTheme(theme)
     }
 
     override fun onPause() {
@@ -106,10 +107,12 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
         super.onResume()
         updateSettingsFallbackButtonVisibility()
 
-        binding.homeWidgetContainer.updateWidgets(
-            this@HomeActivity,
-            LauncherPreferences.widgets().widgets()
-        )
+        if (binding.homeWidgetContainer.isStale()) {
+            binding.homeWidgetContainer.updateWidgets(
+                this@HomeActivity,
+                LauncherPreferences.widgets().widgets()
+            )
+        }
 
         (application as Application).appWidgetHost.startListening()
     }
