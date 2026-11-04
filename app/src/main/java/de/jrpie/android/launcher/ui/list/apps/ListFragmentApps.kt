@@ -175,9 +175,10 @@ class ListFragmentApps : Fragment(), UIObject {
         val hideSearch = LauncherPreferences.functionality().searchHide()
         val star = binding.listAppsCheckBoxFavoritesFloating
         binding.listAppsSearchRow.visibility = if (hideSearch) View.GONE else View.VISIBLE
-        star.visibility = if (hideSearch) View.VISIBLE else View.GONE
+        val showFloatingStar = hideSearch && !LauncherPreferences.functionality().hideFavoritesToggle()
+        star.visibility = if (showFloatingStar) View.VISIBLE else View.GONE
         binding.listAppsRview.apply {
-            val reserveStarSpace = hideSearch && !LauncherPreferences.list().reverseLayout()
+            val reserveStarSpace = showFloatingStar && !LauncherPreferences.list().reverseLayout()
             val starMargin = (star.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin
             val bottom = if (reserveStarSpace) star.layoutParams.height + starMargin else 0
             setPadding(paddingLeft, paddingTop, paddingRight, bottom)
