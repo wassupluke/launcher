@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gesture Tolerance Lab</title>
+<style>
+:root{
+  --bg:#fcfcfb;--panel:#ffffff;--ink:#0b0b0b;--ink2:#52514e;--ink3:#8a8984;--line:#e6e5e0;--codebg:#f6f5f1;
+  --c-angOn:#c0143c;--c-angOff:#7b2cbf;--c-slop:#b45f00;--c-tri:#0b7a6f;--c-insetTop:#3f5170;--c-insetBottom:#3f5170;
+  --c-diag:#0b0b0b;--c-W:#6b7280;--c-H:#6b7280;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,sans-serif;margin:0;padding:20px 16px 60px}
+main{max-width:1400px;margin:auto}
+h1{margin:0;font-size:26px}
+h2{font-size:20px;margin:0 0 6px}
+p{color:var(--ink2);max-width:80ch;margin:6px 0}
+.sub{color:var(--ink2)}
+.toolbar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin:12px 0 20px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.toolbar .param{display:inline-flex;align-items:center;gap:6px;font:13px ui-monospace,monospace}
+.toolbar .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+button{font:inherit;font-size:13px;padding:5px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel);cursor:pointer}
+button:hover{border-color:var(--ink3)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;margin:0 0 22px}
+.cols{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:1000px){.cols{grid-template-columns:1fr}}
+.ref{font:12px ui-monospace,monospace;color:var(--ink2);margin:10px 0 4px;display:flex;flex-wrap:wrap;gap:4px 8px}
+.ref span{font-weight:600;color:var(--ink)}
+.ref a{color:#2a78d6;text-decoration:none}
+.ref a:hover{text-decoration:underline}
+pre.code{background:var(--codebg);border:1px solid var(--line);border-radius:8px;padding:10px 0;margin:0;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto;max-height:520px;white-space:pre}
+pre.code .ln{display:inline-block;width:3.6em;padding-right:.9em;text-align:right;color:var(--ink3);user-select:none;border-right:1px solid var(--line);margin-right:.8em}
+.id{font-weight:700}
+input.pv[type=number]{font:inherit;font-weight:700;border:1.5px solid currentColor;border-radius:4px;padding:0 3px;background:#fff;color:inherit;width:5ch;text-align:center}
+input.pv[type=number]::-webkit-inner-spin-button{opacity:1}
+input.pv.changed{background:#fff6cc}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;border:1px dashed currentColor;border-radius:999px;padding:0 8px;margin-left:6px;font-weight:600}
+.p-angOn{color:var(--c-angOn)}.p-angOff{color:var(--c-angOff)}.p-slop{color:var(--c-slop)}.p-tri{color:var(--c-tri)}
+.p-insetTop{color:var(--c-insetTop)}.p-insetBottom{color:var(--c-insetBottom)}.p-diag{color:var(--c-diag)}.p-W,.p-H{color:var(--c-W)}
+.eq{background:#fafaf7;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-top:12px;font-size:14px}
+.eq h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2)}
+.eq .row{margin:3px 0}
+.eq var{font-style:italic;font-family:Georgia,serif;font-size:15px}
+.eq b.num{font-family:ui-monospace,monospace;font-weight:600}
+.graph{position:relative}
+canvas{display:block;touch-action:none}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:13px;margin:0 0 10px;color:var(--ink2)}
+.ctrls select,.ctrls input[type=range]{font:inherit}
+.readout{font:12.5px/1.6 ui-monospace,monospace;background:#fafaf7;border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-top:10px;white-space:pre-wrap}
+.tip{position:absolute;pointer-events:none;background:rgba(11,11,11,.88);color:#fff;font:12px/1.45 ui-monospace,monospace;padding:6px 9px;border-radius:6px;white-space:pre;display:none;z-index:3}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink2);margin-top:8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.maprow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+#diff{font:12px/1.6 ui-monospace,monospace;white-space:pre;overflow:auto;background:var(--codebg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0}
+.del{color:#b42318}.add{color:#067647}
+</style>
+</head>
+<body>
+<main>
+<h1>Gesture tolerance lab</h1>
+<p class="sub">This page re-implements <code>{{SRC_REL}}</code> (commit {{SHA}}) in JavaScript. Change any <b>boxed value</b> in the code and every graph redraws straight away. A value is the same colour everywhere it appears: in the code, in the equations and on the graphs. The device is a Pixel 8 Pro AVD (1344×2992 px, 480 dpi).</p>
+
+<div class="toolbar" id="toolbar"></div>
+
+<section>
+<h2>1 · Screen map: which gesture each lift-off point gives</h2>
+<div class="cols">
+<div>
+<p>The circle is touch-down <b>S</b>, the square is the dip/apex <b>A</b>, and the diamond is lift-off <b>E</b>. Drag any of them. Each pixel is coloured by the gesture you'd get if you lifted off there, with the path running S→E (straight) or S→A→E (via apex).</p>
+{{CODE_MAP}}
+<div class="eq" id="eqMap"></div>
+</div>
+<div>
+<div class="ctrls">
+<label>Path <select id="mode"><option value="apex">S → A → lift-off</option><option value="straight">S → lift-off (straight)</option></select></label>
+<label>Show <select id="hl"></select></label>
+<button id="vpreset">V preset</button>
+</div>
+<div class="maprow">
+<div class="graph" id="mapWrap"><canvas id="map"></canvas><div class="tip" id="mapTip"></div></div>
+<div><div style="font-size:12px;color:var(--ink2)">zoom ±<span id="zoomR"></span> px around S</div><canvas id="zoom"></canvas></div>
+</div>
+<div class="legend" id="mapLegend"></div>
+<div class="readout" id="probe"></div>
+</div>
+</div>
+</section>
+
+<section>
+<h2>2 · Angular wedges: diagonals on vs off</h2>
+<div class="cols">
+<div>
+{{CODE_ROSE}}
+<div class="eq" id="eqRose"></div>
+</div>
+<div>
+<div class="maprow"><div class="graph"><canvas id="roseOn"></canvas></div><div class="graph"><canvas id="roseOff"></canvas></div></div>
+<p style="font-size:13px">Both modes are drawn side by side. The toggle in the code only changes which one the other graphs use.</p>
+</div>
+</div>
+</section>
+
+<section>
+<h2>3 · V diagnosis: lift-off height × dip depth</h2>
+<div class="cols">
+<div>
+<p>A V attempt is S=(0,0) → A=(w/2, depth) → E=(w, Δy). Positive y points <i>down</i> the screen. The result doesn't depend on where on the screen you start, apart from the insets.</p>
+{{CODE_V}}
+<div class="eq" id="eqV"></div>
+</div>
+<div>
+<div class="ctrls">
+<label>width <var>w</var> <input type="range" id="vw" min="40" max="1300" step="10" value="700"> <b id="vwv"></b> px</label>
+<button id="vfromprobe">use probe from §1</button>
+</div>
+<div class="graph" id="vWrap"><canvas id="vmap"></canvas><div class="tip" id="vTip"></div></div>
+<div class="legend" id="vLegend"></div>
+</div>
+</div>
+</section>
+
+<section>
+<h2>4 · Arc tolerance on a straight swipe</h2>
+<div class="cols">
+<div>
+<p>Model the swipe as a circular arc with chord length <var>L</var> and sagitta <var>s</var>. Only the path's bounding box gets checked, so the arc becomes a triangle gesture once <var>s</var> &gt; <var>h</var>. Diagonal swipes have no triangle variant, so their arc tolerance is unlimited.</p>
+{{CODE_ARC}}
+<div class="eq" id="eqArc"></div>
+</div>
+<div>
+<div class="graph" id="arcWrap"><canvas id="arc"></canvas><div class="tip" id="arcTip"></div></div>
+</div>
+</div>
+</section>
+
+<section>
+<h2>Your edits as a diff</h2>
+<pre id="diff"></pre>
+</section>
+</main>
+
+<script>
+const ORIG = {angOn: 8, angOff: 6, slop: 24, tri: 250, insetTop: 187, insetBottom: 96, W: 1344, H: 2992, diag: true};
+const PARAM_LABEL = {angOn: "ANGULAR_THRESHOLD = tan(π / n)", angOff: "ANGULAR_THRESHOLD_NO_DIAGONALS = tan(π / n)", slop: "TOUCH_SLOP (px)", tri: "MIN_TRIANGLE_HEIGHT (px)", insetTop: "systemGestureInsetTop", insetBottom: "systemGestureInsetBottom", W: "width", H: "height", diag: "diagonalSwipe()"};
+const DIFF_LINE = {
+  angOn: [27, v => `    private val ANGULAR_THRESHOLD = tan(Math.PI / ${v})`],
+  angOff: [28, v => `    private val ANGULAR_THRESHOLD_NO_DIAGONALS = tan(Math.PI / ${v})`],
+  tri: [37, v => `    private val MIN_TRIANGLE_HEIGHT = ${v}`],
+  slop: [138, v => `        TOUCH_SLOP = ${v} /* was configuration.scaledTouchSlop */`],
+  insetTop: [351, v => `        systemGestureInsetTop = ${v}`],
+  insetBottom: [352, v => `        systemGestureInsetBottom = ${v}`],
+};
+const S = Object.assign({}, ORIG);
+try { const h = JSON.parse(decodeURIComponent(location.hash.slice(1))); Object.assign(S, h.S || {}); if (h.P) window.__P = h.P; } catch (e) {}
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const PC = k => css("--c-" + k);
+
+const G = ["none", "SWIPE_RIGHT", "SWIPE_LEFT", "SWIPE_UP", "SWIPE_DOWN", "SWIPE_SLASH_REVERSE", "SWIPE_BACKSLASH_REVERSE", "SWIPE_BACKSLASH", "SWIPE_SLASH", "SWIPE_V", "SWIPE_V_REVERSE", "SWIPE_LAMBDA", "SWIPE_LAMBDA_REVERSE", "SWIPE_SMALLER", "SWIPE_SMALLER_REVERSE", "SWIPE_LARGER", "SWIPE_LARGER_REVERSE"];
+const BLOCKED = 17;
+const LBL = ["none", "Right →", "Left ←", "Up ↑", "Down ↓", "/ rev ↗", "\\ rev ↖", "\\ ↘", "/ ↙", "V", "V rev", "Λ", "Λ rev", "<", "< rev", ">", "> rev", "start blocked"];
+const FILL = ["#dcdbd6", "#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948", "#1f3a5f", "#1f3a5f", "#8a6a3a", "#8a6a3a", "#556b2f", "#556b2f", "#7a3b69", "#7a3b69", "#9aa3b2"];
+const RGB = FILL.map((h, gi) => { const a = gi >= 9 && gi <= 16 ? .78 : .5; const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); return c.map(v => Math.round(255 - a * (255 - v))); });
+const RGBdim = FILL.map(() => [238, 237, 233]);
+const ix = n => G.indexOf(n);
+const R = 1, L = 2, U = 3, D = 4;
+const TRI = {
+  RIGHT: {[U]: ix("SWIPE_LARGER_REVERSE"), [D]: ix("SWIPE_LARGER")},
+  LEFT: {[U]: ix("SWIPE_SMALLER_REVERSE"), [D]: ix("SWIPE_SMALLER")},
+  DOWN: {[L]: ix("SWIPE_V_REVERSE"), [R]: ix("SWIPE_V")},
+  UP: {[L]: ix("SWIPE_LAMBDA_REVERSE"), [R]: ix("SWIPE_LAMBDA")},
+};
+const tOf = (diag = S.diag) => Math.tan(Math.PI / (diag ? S.angOn : S.angOff));
+
+function dirG(dx, dy, t, diag = S.diag) {
+  const ax = Math.abs(dx), ay = Math.abs(dy), s = S.slop;
+  if (t * ax > ay) return dx > s ? R : dx < -s ? L : 0;
+  if (t * ay > ax) return dy < -s ? U : dy > s ? D : 0;
+  if (diag) {
+    if (dx > s && dy < -s) return 5;
+    if (dx < -s && dy < -s) return 6;
+    if (dx > s && dy > s) return 7;
+    if (dx < -s && dy > s) return 8;
+  }
+  return 0;
+}
+function classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t) {
+  if (sy < S.insetTop || sy > S.H - S.insetBottom) return BLOCKED;
+  let g = dirG(ex - sx, ey - sy, t);
+  if (!g) return 0;
+  const h = S.tri;
+  const seMaxX = Math.max(sx, ex), seMinX = Math.min(sx, ex), seMaxY = Math.max(sy, ey), seMinY = Math.min(sy, ey);
+  if (seMaxX + h < mxx) g = TRI.RIGHT[g] ?? g;
+  else if (seMinX - h > mnx) g = TRI.LEFT[g] ?? g;
+  if (seMaxY + h < mxy) g = TRI.DOWN[g] ?? g;
+  else if (seMinY - h > mny) g = TRI.UP[g] ?? g;
+  return g;
+}
+function classifyPts(pts, t) {
+  let mnx = Infinity, mxx = -Infinity, mny = Infinity, mxy = -Infinity;
+  for (const [x, y] of pts) { mnx = Math.min(mnx, x); mxx = Math.max(mxx, x); mny = Math.min(mny, y); mxy = Math.max(mxy, y); }
+  const [sx, sy] = pts[0], [ex, ey] = pts[pts.length - 1];
+  return classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t);
+}
+const deg = r => r * 180 / Math.PI;
+const f = (v, d = 0) => Number(v).toFixed(d);
+const num = (v, d = 0) => `<b class="num">${f(v, d)}</b>`;
+const P_ = k => `<span class="p-${k}"><b>${({angOn: "n", angOff: "n", slop: "TOUCH_SLOP", tri: "h", insetTop: "insetTop", insetBottom: "insetBottom"})[k]}</b></span>`;
+const PV = (k, d = 0) => `<span class="p-${k}"><b class="num">${f(S[k], d)}</b></span>`;
+
+const P = window.__P || {mode: "apex", S: [300, 1100], A: [672, 1600], E: [1044, 1100]};
+const sel = {hl: -1};
+
+function setupCanvas(c, w, h) {
+  const dpr = window.devicePixelRatio || 1;
+  c.width = Math.round(w * dpr); c.height = Math.round(h * dpr);
+  c.style.width = w + "px"; c.style.height = h + "px";
+  const ctx = c.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return ctx;
+}
+function halo(ctx, text, x, y, color, font = "600 12px system-ui", align = "center") {
+  ctx.font = font; ctx.textAlign = align; ctx.textBaseline = "middle";
+  ctx.lineWidth = 4; ctx.strokeStyle = "rgba(255,255,255,.92)"; ctx.strokeText(text, x, y);
+  ctx.fillStyle = color; ctx.fillText(text, x, y);
+}
+function dline(ctx, x1, y1, x2, y2, color, dash = [], w = 2) {
+  ctx.save(); ctx.setLineDash([]); ctx.lineWidth = w + 3; ctx.strokeStyle = "rgba(255,255,255,.85)";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.setLineDash(dash); ctx.lineWidth = w; ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+}
+
+const map = document.getElementById("map"), zoom = document.getElementById("zoom");
+let mapScale = 0, mapCtx, zoomCtx, off = document.createElement("canvas");
+const STEP = 4;
+
+function rayEnd(sx, sy, ang, W, H) {
+  const dx = Math.cos(ang), dy = -Math.sin(ang); let best = Infinity;
+  if (dx > 1e-9) best = Math.min(best, (W - sx) / dx); if (dx < -1e-9) best = Math.min(best, -sx / dx);
+  if (dy > 1e-9) best = Math.min(best, (H - sy) / dy); if (dy < -1e-9) best = Math.min(best, -sy / dy);
+  return [sx + dx * best, sy + dy * best];
+}
+
+function drawMap() {
+  const W = S.W, H = S.H, t = tOf();
+  const dispH = Math.min(760, Math.max(420, window.innerHeight * .78));
+  mapScale = dispH / H;
+  const cw = Math.round(W * mapScale);
+  mapCtx = setupCanvas(map, cw, dispH);
+  const gw = Math.ceil(W / STEP), gh = Math.ceil(H / STEP);
+  off.width = gw; off.height = gh;
+  const octx = off.getContext("2d"), img = octx.createImageData(gw, gh), d = img.data;
+  const [sx, sy] = P.S, [ax, ay] = P.A, apex = P.mode === "apex";
+  const sumX = new Float64Array(19), sumY = new Float64Array(19), cnt = new Float64Array(19);
+  for (let j = 0; j < gh; j++) {
+    const ey = j * STEP + STEP / 2;
+    for (let i = 0; i < gw; i++) {
+      const ex = i * STEP + STEP / 2;
+      let g;
+      if (apex) g = classify(sx, sy, ex, ey, Math.min(sx, ax, ex), Math.max(sx, ax, ex), Math.min(sy, ay, ey), Math.max(sy, ay, ey), t);
+      else g = classify(sx, sy, ex, ey, Math.min(sx, ex), Math.max(sx, ex), Math.min(sy, ey), Math.max(sy, ey), t);
+      const c = (sel.hl >= 0 && g !== sel.hl) ? RGBdim[g] : RGB[g];
+      const o = (j * gw + i) * 4; d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = 255;
+      sumX[g] += ex; sumY[g] += ey; cnt[g]++;
+    }
+  }
+  octx.putImageData(img, 0, 0);
+  const ctx = mapCtx, k = mapScale;
+  ctx.imageSmoothingEnabled = false; ctx.drawImage(off, 0, 0, gw * STEP * k, gh * STEP * k);
+  ctx.save();
+  for (const [y0, y1, key] of [[0, S.insetTop, "insetTop"], [H - S.insetBottom, H, "insetBottom"]]) {
+    ctx.fillStyle = PC(key) + "33"; ctx.fillRect(0, y0 * k, cw, (y1 - y0) * k);
+    ctx.strokeStyle = PC(key); ctx.lineWidth = 1; ctx.beginPath();
+    for (let x = -dispH; x < cw; x += 8) { ctx.moveTo(x, y1 * k); ctx.lineTo(x + (y1 - y0) * k, y0 * k); }
+    ctx.save(); ctx.beginPath(); ctx.rect(0, y0 * k, cw, (y1 - y0) * k); ctx.clip();
+    ctx.strokeStyle = PC(key) + "66"; ctx.beginPath();
+    for (let x = -60; x < cw + 60; x += 8) { ctx.moveTo(x, y1 * k); ctx.lineTo(x + 30, y0 * k); } ctx.stroke(); ctx.restore();
+    dline(ctx, 0, (key === "insetTop" ? y1 : y0) * k, cw, (key === "insetTop" ? y1 : y0) * k, PC(key), [], 1.5);
+    halo(ctx, `${key} ${S[key]}px · no touch-down`, cw / 2, ((key === "insetTop" ? y1 : y0) + (key === "insetTop" ? -1 : 1) * Math.min(60, (y1 - y0) / 2)) * k, PC(key), "600 11px system-ui");
+  }
+  ctx.restore();
+  for (let g = 1; g < 18; g++) if (cnt[g] > 400 && (sel.hl < 0 || sel.hl === g)) halo(ctx, LBL[g], sumX[g] / cnt[g] * k, sumY[g] / cnt[g] * k, "#0b0b0b", "700 13px system-ui");
+  const key = S.diag ? "angOn" : "angOff", half = Math.atan(t);
+  for (const base of [0, 90, 180, 270]) for (const sgn of [-1, 1]) {
+    const a = base * Math.PI / 180 + sgn * half, [x2, y2] = rayEnd(sx, sy, a, W, H);
+    dline(ctx, sx * k, sy * k, x2 * k, y2 * k, PC(key), [7, 5], 1.6);
+  }
+  const [lx, ly] = rayEnd(sx, sy, half, W, H);
+  halo(ctx, `±${f(deg(half), 1)}°`, sx * k + (lx - sx) * k * .55, sy * k + (ly - sy) * k * .55 - 10, PC(key), "700 12px system-ui");
+  ctx.strokeStyle = PC("slop"); ctx.lineWidth = 2; ctx.strokeRect((sx - S.slop) * k, (sy - S.slop) * k, 2 * S.slop * k, 2 * S.slop * k);
+  const [ex, ey] = P.E;
+  if (P.mode === "apex") {
+    const h = S.tri, mxX = Math.max(sx, ex), mnX = Math.min(sx, ex), mxY = Math.max(sy, ey), mnY = Math.min(sy, ey);
+    const tl = PC("tri");
+    dline(ctx, 0, (mxY + h) * k, cw, (mxY + h) * k, tl, [3, 4], 1.6);
+    dline(ctx, 0, (mnY - h) * k, cw, (mnY - h) * k, tl, [3, 4], 1.6);
+    dline(ctx, (mxX + h) * k, 0, (mxX + h) * k, dispH, tl, [3, 4], 1.6);
+    dline(ctx, (mnX - h) * k, 0, (mnX - h) * k, dispH, tl, [3, 4], 1.6);
+    halo(ctx, `max(S.y,E.y)+h`, cw - 6, (mxY + h) * k - 9, tl, "600 11px system-ui", "right");
+    halo(ctx, `min(S.y,E.y)−h`, cw - 6, (mnY - h) * k - 9, tl, "600 11px system-ui", "right");
+    dline(ctx, sx * k, sy * k, P.A[0] * k, P.A[1] * k, "#0b0b0b", [], 2.2);
+    dline(ctx, P.A[0] * k, P.A[1] * k, ex * k, ey * k, "#0b0b0b", [], 2.2);
+  } else dline(ctx, sx * k, sy * k, ex * k, ey * k, "#0b0b0b", [], 2.2);
+  const handle = (x, y, shape) => {
+    ctx.save(); ctx.translate(x * k, y * k); ctx.fillStyle = "#fff"; ctx.strokeStyle = "#0b0b0b"; ctx.lineWidth = 2.2; ctx.beginPath();
+    if (shape === "c") ctx.arc(0, 0, 7, 0, 7); else if (shape === "s") ctx.rect(-6, -6, 12, 12); else { ctx.moveTo(0, -8); ctx.lineTo(8, 0); ctx.lineTo(0, 8); ctx.lineTo(-8, 0); ctx.closePath(); }
+    ctx.fill(); ctx.stroke(); ctx.restore();
+  };
+  if (P.mode === "apex") handle(P.A[0], P.A[1], "s");
+  handle(ex, ey, "d"); handle(sx, sy, "c");
+  drawZoom(t); probeReadout(t);
+}
+
+function drawZoom(t) {
+  const r = Math.max(40, S.slop * 4), px = 150; zoomCtx = setupCanvas(zoom, px, px);
+  document.getElementById("zoomR").textContent = r;
+  const [sx, sy] = P.S, img = zoomCtx.createImageData(px, px), dpr = 1;
+  const z = document.createElement("canvas"); z.width = px; z.height = px; const zc = z.getContext("2d"), id = zc.createImageData(px, px);
+  for (let j = 0; j < px; j++) for (let i = 0; i < px; i++) {
+    const ex = sx - r + (i + .5) * 2 * r / px, ey = sy - r + (j + .5) * 2 * r / px;
+    const g = classify(sx, sy, ex, ey, Math.min(sx, ex), Math.max(sx, ex), Math.min(sy, ey), Math.max(sy, ey), t);
+    const c = RGB[g], o = (j * px + i) * 4; id.data[o] = c[0]; id.data[o + 1] = c[1]; id.data[o + 2] = c[2]; id.data[o + 3] = 255;
+  }
+  zc.putImageData(id, 0, 0); zoomCtx.drawImage(z, 0, 0);
+  const k = px / (2 * r); zoomCtx.strokeStyle = PC("slop"); zoomCtx.lineWidth = 2;
+  zoomCtx.strokeRect(px / 2 - S.slop * k, px / 2 - S.slop * k, 2 * S.slop * k, 2 * S.slop * k);
+  halo(zoomCtx, `TOUCH_SLOP ${S.slop}`, px / 2, px / 2 - S.slop * k - 9, PC("slop"), "700 10px system-ui");
+  zoomCtx.fillStyle = "#fff"; zoomCtx.strokeStyle = "#000"; zoomCtx.beginPath(); zoomCtx.arc(px / 2, px / 2, 4, 0, 7); zoomCtx.fill(); zoomCtx.stroke();
+  zoomCtx.strokeStyle = "#ccc"; zoomCtx.lineWidth = 1; zoomCtx.strokeRect(.5, .5, px - 1, px - 1);
+}
+
+function probeReadout(t) {
+  const [sx, sy] = P.S, [ex, ey] = P.E, pts = P.mode === "apex" ? [P.S, P.A, P.E] : [P.S, P.E];
+  const g = classifyPts(pts, t), dx = ex - sx, dy = ey - sy;
+  const ang = (deg(Math.atan2(-dy, dx)) + 360) % 360;
+  let s = `S=(${f(sx)},${f(sy)})  E=(${f(ex)},${f(ey)})${P.mode === "apex" ? `  A=(${f(P.A[0])},${f(P.A[1])})` : ""}\n`;
+  s += `chord d = (${f(dx)}, ${f(dy)})  angle ${f(ang, 1)}°  |d| ${f(Math.hypot(dx, dy))}px\n`;
+  if (P.mode === "apex") {
+    const ys = [sy, P.A[1], ey], xs = [sx, P.A[0], ex];
+    s += `bulge ↓ ${f(Math.max(...ys) - Math.max(sy, ey))}  ↑ ${f(Math.min(sy, ey) - Math.min(...ys))}  → ${f(Math.max(...xs) - Math.max(sx, ex))}  ← ${f(Math.min(sx, ex) - Math.min(...xs))}   (triangle needs > h = ${S.tri})\n`;
+  }
+  s += `⇒ ${G[g] || "start inside system gesture inset"}`;
+  document.getElementById("probe").textContent = s;
+}
+
+function hitHandle(mx, my) {
+  const k = mapScale, hs = [["E", P.E], ["S", P.S]]; if (P.mode === "apex") hs.splice(1, 0, ["A", P.A]);
+  for (const [n, [x, y]] of hs) if (Math.hypot(x * k - mx, y * k - my) < 16) return n; return null;
+}
+let drag = null;
+map.addEventListener("pointerdown", e => { const r = map.getBoundingClientRect(); drag = hitHandle(e.clientX - r.left, e.clientY - r.top); if (drag) map.setPointerCapture(e.pointerId); });
+map.addEventListener("pointermove", e => {
+  const r = map.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, x = mx / mapScale, y = my / mapScale;
+  const tip = document.getElementById("mapTip");
+  if (drag) { P[drag] = [Math.max(0, Math.min(S.W, Math.round(x))), Math.max(0, Math.min(S.H, Math.round(y)))]; schedule(); tip.style.display = "none"; return; }
+  map.style.cursor = hitHandle(mx, my) ? "grab" : "crosshair";
+  const [sx, sy] = P.S, t = tOf(), pts = P.mode === "apex" ? [P.S, P.A, [x, y]] : [P.S, [x, y]];
+  const g = classifyPts(pts, t), dx = x - sx, dy = y - sy;
+  tip.textContent = `lift-off (${f(x)}, ${f(y)})\nd = (${f(dx)}, ${f(dy)})  ${f((deg(Math.atan2(-dy, dx)) + 360) % 360, 1)}°\n${LBL[g]}`;
+  tip.style.display = "block"; tip.style.left = (mx + 14) + "px"; tip.style.top = (my + 10) + "px";
+});
+map.addEventListener("pointerup", () => { drag = null; save(); });
+map.addEventListener("pointerleave", () => document.getElementById("mapTip").style.display = "none");
+
+function drawRose(c, diag) {
+  const sz = 300, ctx = setupCanvas(c, sz, sz + 30), cx = sz / 2, cy = sz / 2 + 22, rad = sz / 2 - 30;
+  const t = tOf(diag), key = diag ? "angOn" : "angOff", step = .25, spans = {};
+  for (let a = 0; a < 360; a += step) {
+    const r = a * Math.PI / 180, rc = (a + step / 2) * Math.PI / 180, g = dirG(Math.cos(rc) * 1e4, -Math.sin(rc) * 1e4, t, diag);
+    spans[g] = (spans[g] || 0) + step;
+    ctx.fillStyle = `rgb(${RGB[g]})`; ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, rad, -(r + step * Math.PI / 180), -r + .002); ctx.closePath(); ctx.fill();
+  }
+  const half = Math.atan(t);
+  for (const base of [0, 90, 180, 270]) for (const sg of [-1, 1]) {
+    const a = base * Math.PI / 180 + sg * half;
+    dline(ctx, cx, cy, cx + Math.cos(a) * (rad + 6), cy - Math.sin(a) * (rad + 6), PC(key), [5, 4], 1.5);
+    halo(ctx, `${f((deg(a) + 360) % 360, 1)}°`, cx + Math.cos(a) * (rad + 19), cy - Math.sin(a) * (rad + 19), PC(key), "600 10px system-ui");
+  }
+  const centers = diag ? {1: 0, 5: 45, 3: 90, 6: 135, 2: 180, 8: 225, 4: 270, 7: 315} : {1: 0, 3: 90, 2: 180, 4: 270, 0: 45};
+  for (const [g, a] of Object.entries(centers)) {
+    if (!spans[g]) continue; const r = a * Math.PI / 180;
+    halo(ctx, `${LBL[g]}`, cx + Math.cos(r) * rad * .58, cy - Math.sin(r) * rad * .58 - 7, "#0b0b0b", "700 11px system-ui");
+    halo(ctx, `${f(g == 0 ? spans[g] / 4 : spans[g], 1)}°`, cx + Math.cos(r) * rad * .58, cy - Math.sin(r) * rad * .58 + 8, "#0b0b0b", "600 11px system-ui");
+  }
+  halo(ctx, `diagonals ${diag ? "ON" : "OFF"}  (n = ${diag ? S.angOn : S.angOff})`, cx, 10, PC(key), "700 13px system-ui");
+  ctx.lineWidth = 3; ctx.strokeStyle = S.diag === diag ? "#0b0b0b" : "transparent"; ctx.beginPath(); ctx.arc(cx, cy, rad + 1, 0, 7); ctx.stroke();
+}
+
+const vmap = document.getElementById("vmap");
+const VX = [-800, 800], VY = [-200, 1100], VPAD = {l: 54, r: 12, t: 12, b: 42};
+let vGeom;
+function drawV() {
+  const w = +document.getElementById("vw").value; document.getElementById("vwv").textContent = w;
+  const cw = Math.min(620, vmap.parentElement.clientWidth || 600), ch = 470, ctx = setupCanvas(vmap, cw, ch);
+  const pw = cw - VPAD.l - VPAD.r, ph = ch - VPAD.t - VPAD.b; vGeom = {cw, ch, pw, ph};
+  const X = v => VPAD.l + (v - VX[0]) / (VX[1] - VX[0]) * pw, Y = v => VPAD.t + (1 - (v - VY[0]) / (VY[1] - VY[0])) * ph;
+  const gw = Math.ceil(pw / 2), gh = Math.ceil(ph / 2), o = document.createElement("canvas"); o.width = gw; o.height = gh;
+  const oc = o.getContext("2d"), id = oc.createImageData(gw, gh), t = tOf(), sy = 1500, present = new Set();
+  for (let j = 0; j < gh; j++) {
+    const dep = VY[1] - (j + .5) / gh * (VY[1] - VY[0]);
+    for (let i = 0; i < gw; i++) {
+      const dy = VX[0] + (i + .5) / gw * (VX[1] - VX[0]);
+      const g = classifyPts([[0, sy], [w / 2, sy + dep], [w, sy + dy]], t); present.add(g);
+      const c = RGB[g], q = (j * gw + i) * 4; id.data[q] = c[0]; id.data[q + 1] = c[1]; id.data[q + 2] = c[2]; id.data[q + 3] = 255;
+    }
+  }
+  oc.putImageData(id, 0, 0); ctx.imageSmoothingEnabled = false; ctx.drawImage(o, VPAD.l, VPAD.t, pw, ph);
+  ctx.fillStyle = "#52514e"; ctx.font = "11px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for (let v = -800; v <= 800; v += 200) { ctx.fillText(v, X(v), ch - VPAD.b + 4); ctx.fillRect(X(v), ch - VPAD.b, 1, 4); }
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (let v = -200; v <= 1100; v += 200) { ctx.fillText(v, VPAD.l - 6, Y(v)); ctx.fillRect(VPAD.l - 4, Y(v), 4, 1); }
+  ctx.textAlign = "center"; ctx.fillText("lift-off Δy vs touch-down (px)   ← higher  |  lower →", VPAD.l + pw / 2, ch - 12);
+  ctx.save(); ctx.translate(13, VPAD.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("dip depth below touch-down (px)", 0, 0); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.rect(VPAD.l, VPAD.t, pw, ph); ctx.clip();
+  const key = S.diag ? "angOn" : "angOff", lim = w * t;
+  for (const s of [-1, 1]) dline(ctx, X(s * lim), VPAD.t, X(s * lim), VPAD.t + ph, PC(key), [7, 5], 1.6);
+  halo(ctx, `Δy = −w·t = ${f(-lim)}`, X(-lim) - 4, VPAD.t + 12, PC(key), "700 11px system-ui", "right");
+  halo(ctx, `+w·t = ${f(lim)}`, X(lim) + 4, VPAD.t + 12, PC(key), "700 11px system-ui", "left");
+  const tc = PC("tri");
+  dline(ctx, X(VX[0]), Y(S.tri), X(0), Y(S.tri), tc, [], 2); dline(ctx, X(0), Y(S.tri), X(VX[1]), Y(VX[1] + S.tri), tc, [], 2);
+  halo(ctx, `depth = max(0, Δy) + h`, X(-420), Y(S.tri) - 11, tc, "700 11px system-ui");
+  ctx.restore();
+  ctx.strokeStyle = "#cfcdc6"; ctx.strokeRect(VPAD.l + .5, VPAD.t + .5, pw, ph);
+  vGeom.X = X; vGeom.Y = Y; vGeom.w = w;
+  legend("vLegend", [...present]);
+}
+vmap.addEventListener("pointermove", e => {
+  if (!vGeom) return; const r = vmap.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top, tip = document.getElementById("vTip");
+  const dy = VX[0] + (mx - VPAD.l) / vGeom.pw * (VX[1] - VX[0]), dep = VY[1] - (my - VPAD.t) / vGeom.ph * (VY[1] - VY[0]);
+  if (mx < VPAD.l || my < VPAD.t || mx > VPAD.l + vGeom.pw || my > VPAD.t + vGeom.ph) { tip.style.display = "none"; return; }
+  const g = classifyPts([[0, 1500], [vGeom.w / 2, 1500 + dep], [vGeom.w, 1500 + dy]], tOf());
+  tip.textContent = `Δy ${f(dy)}  depth ${f(dep)}\nslope ${f(deg(Math.atan2(-dy, vGeom.w)), 1)}°\n${LBL[g]}`;
+  tip.style.display = "block"; tip.style.left = (mx + 14) + "px"; tip.style.top = (my + 10) + "px";
+});
+vmap.addEventListener("pointerleave", () => document.getElementById("vTip").style.display = "none");
+
+const arc = document.getElementById("arc"), APAD = {l: 50, r: 16, t: 30, b: 42};
+let aGeom;
+function drawArc() {
+  const cw = Math.min(620, arc.parentElement.clientWidth || 600), ch = 380, ctx = setupCanvas(arc, cw, ch);
+  const pw = cw - APAD.l - APAD.r, ph = ch - APAD.t - APAD.b, Lr = [40, 2800], Yr = [0, 360];
+  const X = v => APAD.l + (v - Lr[0]) / (Lr[1] - Lr[0]) * pw, Y = v => APAD.t + (1 - v / Yr[1]) * ph;
+  ctx.font = "11px system-ui"; ctx.fillStyle = "#52514e";
+  for (let v = 0; v <= 360; v += 45) { ctx.fillStyle = "#eeede8"; ctx.fillRect(APAD.l, Y(v), pw, 1); ctx.fillStyle = "#52514e"; ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillText(v + "°", APAD.l - 6, Y(v)); }
+  for (let v = 0; v <= 2800; v += 400) { ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillText(v, X(Math.max(v, 40)), ch - APAD.b + 4); }
+  ctx.textAlign = "center"; ctx.fillText("chord length L (px)", APAD.l + pw / 2, ch - 14);
+  const h = S.tri, series = [["start/end heading off chord  2·atan(2h/L)", "#2a78d6", L => 2 * deg(Math.atan(2 * h / L))], ["total arc (central angle)  4·atan(2h/L)", "#eb6834", L => 4 * deg(Math.atan(2 * h / L))]];
+  for (const [name, col, fn] of series) {
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+    for (let L = Lr[0]; L <= Lr[1]; L += 5) { const v = Math.min(360, fn(L)); L === Lr[0] ? ctx.moveTo(X(L), Y(v)) : ctx.lineTo(X(L), Y(v)); } ctx.stroke();
+  }
+  const key = S.diag ? "angOn" : "angOff", half = deg(Math.atan(tOf()));
+  dline(ctx, APAD.l, Y(half), APAD.l + pw, Y(half), PC(key), [6, 4], 1.4);
+  halo(ctx, `wedge half-angle ${f(half, 1)}° (for reference)`, APAD.l + pw - 4, Y(half) - 10, PC(key), "600 11px system-ui", "right");
+  let lx = APAD.l + 8;
+  for (const [name, col] of series) { ctx.fillStyle = col; ctx.fillRect(lx, 10, 14, 3); ctx.fillStyle = "#0b0b0b"; ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillText(name, lx + 18, 11); lx += ctx.measureText(name).width + 40; }
+  halo(ctx, `h = MIN_TRIANGLE_HEIGHT = ${h}`, APAD.l + pw - 4, Y(300), PC("tri"), "700 12px system-ui", "right");
+  ctx.lineWidth = 1; ctx.strokeStyle = "#cfcdc6"; ctx.strokeRect(APAD.l + .5, APAD.t + .5, pw, ph);
+  aGeom = {X, Y, pw, ph, Lr, series, ctx, cw, ch};
+}
+arc.addEventListener("pointermove", e => {
+  const r = arc.getBoundingClientRect(), mx = e.clientX - r.left, tip = document.getElementById("arcTip");
+  const L = aGeom.Lr[0] + (mx - APAD.l) / aGeom.pw * (aGeom.Lr[1] - aGeom.Lr[0]);
+  if (L < aGeom.Lr[0] || L > aGeom.Lr[1]) { tip.style.display = "none"; return; }
+  drawArc(); const ctx = aGeom.ctx; ctx.fillStyle = "#0b0b0b55"; ctx.fillRect(mx, APAD.t, 1, aGeom.ph);
+  const vals = aGeom.series.map(([n, c, fn]) => fn(L));
+  aGeom.series.forEach(([n, c], i) => { ctx.fillStyle = "#fff"; ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(mx, aGeom.Y(Math.min(360, vals[i])), 4.5, 0, 7); ctx.fill(); ctx.stroke(); });
+  tip.textContent = `L = ${f(L)} px\nmax heading off chord ${f(vals[0], 1)}°\nmax total arc ${f(vals[1], 1)}°\nmax sagitta ${S.tri} px`;
+  tip.style.display = "block"; tip.style.left = Math.min(mx + 14, aGeom.cw - 210) + "px"; tip.style.top = "40px";
+});
+arc.addEventListener("pointerleave", () => { document.getElementById("arcTip").style.display = "none"; drawArc(); });
+
+function legend(id, gs) {
+  document.getElementById(id).innerHTML = gs.sort((a, b) => a - b).map(g => `<span><i style="background:rgb(${RGB[g]})"></i>${LBL[g]}</span>`).join("");
+}
+
+function equations() {
+  const t = tOf(), key = S.diag ? "angOn" : "angOff", half = deg(Math.atan(t)), n = S.diag ? S.angOn : S.angOff;
+  const tON = tOf(true), tOFF = tOf(false), hON = deg(Math.atan(tON)), hOFF = deg(Math.atan(tOFF));
+  const [sx, sy] = P.S, [ex, ey] = P.E;
+  document.getElementById("eqMap").innerHTML = `<h3>Equations</h3>
+  <div class="row">chord <var>d</var> = <var>E</var> − <var>S</var> = (${num(ex - sx)}, ${num(ey - sy)})  <span style="color:var(--ink3)">L98</span></div>
+  <div class="row"><var>t</var> = tan(π / ${P_(key)}) = tan(π / ${PV(key, 2)}) = ${num(t, 4)}  ⇒ wedge edge at ±${num(half, 2)}° <span style="color:var(--ink3)">L27-28, L224-228</span></div>
+  <div class="row">horizontal ⇔ <var>t</var>·|<var>d<sub>x</sub></var>| &gt; |<var>d<sub>y</sub></var>|,  vertical ⇔ <var>t</var>·|<var>d<sub>y</sub></var>| &gt; |<var>d<sub>x</sub></var>|,  else diagonal${S.diag ? "" : " → <b>none</b> (diagonals off)"} <span style="color:var(--ink3)">L231-249</span></div>
+  <div class="row">Right ⇔ horizontal ∧ <var>d<sub>x</sub></var> &gt; ${P_("slop")} (${PV("slop")});  diagonal needs |<var>d<sub>x</sub></var>|, |<var>d<sub>y</sub></var>| &gt; ${PV("slop")}</div>
+  <div class="row">triangle ↓ ⇔ max<sub>path</sub> <var>y</var> &gt; max(<var>S<sub>y</sub></var>, <var>E<sub>y</sub></var>) + ${P_("tri")} = ${num(Math.max(sy, ey) + S.tri)}  (likewise ↑ ← →) <span style="color:var(--ink3)">L304-314</span></div>
+  <div class="row">V = Right + ↓,  Λ = Right + ↑,  &lt; = Down + ←,  &gt; = Down + → (and “reverse” = opposite chord)</div>
+  <div class="row">touch-down rejected ⇔ <var>S<sub>y</sub></var> &lt; ${P_("insetTop")} (${PV("insetTop")}) ∨ <var>S<sub>y</sub></var> &gt; height − ${P_("insetBottom")} = ${num(S.H - S.insetBottom)} <span style="color:var(--ink3)">L116-117</span></div>`;
+  const span = (tt, diag) => { const c = 2 * deg(Math.atan(Math.min(tt, 1))); return {card: c, other: 90 - c}; };
+  const on = span(tON), offs = span(tOFF);
+  document.getElementById("eqRose").innerHTML = `<h3>Equations</h3>
+  <div class="row">half-wedge θ = atan(<var>t</var>) = atan(tan(π / ${P_("angOn")})) = 180° / ${PV("angOn", 2)} = ${num(hON, 2)}°   (diagonals on)</div>
+  <div class="row">half-wedge θ = 180° / ${PV("angOff", 2)} = ${num(hOFF, 2)}°   (diagonals off)</div>
+  <div class="row">cardinal span = 2θ  ⇒ on: ${num(on.card, 1)}°, off: ${num(offs.card, 1)}°</div>
+  <div class="row">diagonal span (on) = 90° − 2θ = ${num(on.other, 1)}°;  dead gap (off) = 90° − 2θ = ${num(offs.other, 1)}°</div>
+  ${tON > 1 || tOFF > 1 ? `<div class="row" style="color:#b42318">t &gt; 1: horizontal is tested first and swallows the overlap</div>` : ""}`;
+  const w = +document.getElementById("vw").value, lim = w * t;
+  document.getElementById("eqV").innerHTML = `<h3>Equations (width <var>w</var> = ${num(w)})</h3>
+  <div class="row">V ⇔ <var>w</var> &gt; ${P_("slop")} ∧ |Δ<var>y</var>| &lt; <var>w</var>·<var>t</var> = ${num(w)}·tan(π / ${PV(key, 2)}) = ${num(lim)} ∧ depth &gt; max(0, Δ<var>y</var>) + ${P_("tri")} (${PV("tri")})</div>
+  <div class="row">/ reverse ⇔ Δ<var>y</var> &lt; −${num(lim)}${S.diag ? "" : " → none when diagonals are off"}     \\ ⇔ Δ<var>y</var> &gt; ${num(lim)}</div>
+  <div class="row">Right ⇔ |Δ<var>y</var>| &lt; ${num(lim)} ∧ depth ≤ max(0, Δ<var>y</var>) + ${PV("tri")}</div>
+  <div class="row">max lift-off tilt = θ = ${num(half, 2)}°;  min dip <var>h</var> = ${PV("tri")} px = ${num(S.tri / 3, 0)} dp = ${num(S.tri / 480 * 25.4, 1)} mm @ 480 dpi</div>`;
+  document.getElementById("eqArc").innerHTML = `<h3>Equations</h3>
+  <div class="row">circular arc, chord <var>L</var>, sagitta <var>s</var>:  <var>s</var> = (<var>L</var>/2)·tan(φ/4), φ = central angle</div>
+  <div class="row">stays a straight-swipe gesture ⇔ <var>s</var> ≤ ${P_("tri")} = ${PV("tri")} px</div>
+  <div class="row">φ<sub>max</sub> = 4·atan(2${P_("tri")}/<var>L</var>),  heading at start/end vs chord = φ/2 = 2·atan(2${P_("tri")}/<var>L</var>)</div>
+  <div class="row">e.g. <var>L</var> = 800: ${num(2 * deg(Math.atan(2 * S.tri / 800)), 1)}° heading;  <var>L</var> = 1300: ${num(2 * deg(Math.atan(2 * S.tri / 1300)), 1)}°</div>
+  <div class="row">the direction itself only uses the chord, so curving never changes the direction. Only the lift-off point's angle can (±${num(half, 1)}°).</div>`;
+}
+
+function diff() {
+  const out = [];
+  for (const [k, [ln, fn]] of Object.entries(DIFF_LINE)) if (S[k] !== ORIG[k]) out.push(`<span class="del">-${ln}: ${fn(ORIG[k]).replace(/</g, "&lt;")}</span>\n<span class="add">+${ln}: ${fn(S[k]).replace(/</g, "&lt;")}</span>`);
+  if (S.diag !== ORIG.diag) out.push(`<span class="add">  preference diagonalSwipe() = ${S.diag}</span>`);
+  if (S.W !== ORIG.W || S.H !== ORIG.H) out.push(`<span class="add">  screen ${S.W}×${S.H}</span>`);
+  document.getElementById("diff").innerHTML = out.length ? out.join("\n") : "(no changes; every value matches the source)";
+}
+
+function syncInputs() {
+  document.querySelectorAll("input.pv").forEach(el => {
+    const k = el.dataset.k;
+    if (el.type === "checkbox") el.checked = !!S[k];
+    else if (document.activeElement !== el) el.value = S[k];
+    if (el.type === "number") el.style.width = (String(el.value).length + 4.5) + "ch";
+    el.classList.toggle("changed", S[k] !== ORIG[k]);
+  });
+}
+function toolbar() {
+  const keys = ["angOn", "angOff", "slop", "tri", "insetTop", "insetBottom"];
+  document.getElementById("toolbar").innerHTML = keys.map(k => `<span class="param p-${k}"><span class="sw" style="background:var(--c-${k})"></span>${PARAM_LABEL[k]} ${k.startsWith("ang") ? "n = " : ""}<input class="pv" data-k="${k}" type="number" step="any"></span>`).join("") +
+    `<label class="param p-diag"><input class="pv" data-k="diag" type="checkbox"> diagonals</label><button id="reset">reset to source</button><button id="share">copy link</button>`;
+  document.getElementById("reset").onclick = () => { Object.assign(S, ORIG); syncInputs(); schedule(); save(); };
+  document.getElementById("share").onclick = () => { save(); navigator.clipboard && navigator.clipboard.writeText(location.href); };
+}
+function bindInputs() {
+  document.addEventListener("input", e => {
+    const el = e.target; if (!el.classList.contains("pv")) return;
+    const k = el.dataset.k;
+    if (el.type === "checkbox") S[k] = el.checked;
+    else { const v = parseFloat(el.value); if (!isFinite(v) || ((k === "angOn" || k === "angOff") && v <= 2)) return; S[k] = v; }
+    syncInputs(); schedule(); save();
+  });
+}
+function save() { history.replaceState(null, "", "#" + encodeURIComponent(JSON.stringify({S, P}))); }
+
+let pending = false;
+function schedule() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; renderAll(); }); }
+function renderAll() {
+  drawMap(); drawRose(document.getElementById("roseOn"), true); drawRose(document.getElementById("roseOff"), false);
+  drawV(); drawArc(); equations(); diff();
+  legend("mapLegend", sel.hl >= 0 ? [sel.hl] : [...Array(18).keys()].filter(g => g !== 0 || true));
+}
+
+toolbar(); bindInputs(); syncInputs();
+const hlSel = document.getElementById("hl");
+hlSel.innerHTML = `<option value="-1">all gestures</option>` + G.slice(1).map((g, i) => `<option value="${i + 1}">${LBL[i + 1]}  (${g})</option>`).join("");
+hlSel.onchange = () => { sel.hl = +hlSel.value; schedule(); };
+const modeSel = document.getElementById("mode"); modeSel.value = P.mode;
+modeSel.onchange = () => { P.mode = modeSel.value; schedule(); save(); };
+document.getElementById("vpreset").onclick = () => { P.mode = "apex"; modeSel.value = "apex"; P.S = [300, 1100]; P.A = [672, 1600]; P.E = [1044, 1100]; schedule(); save(); };
+document.getElementById("vw").oninput = schedule;
+document.getElementById("vfromprobe").onclick = () => { const w = Math.round(P.E[0] - P.S[0]); if (w > 0) { document.getElementById("vw").value = w; schedule(); } };
+window.addEventListener("resize", schedule);
+renderAll();
+</script>
+</body>
+</html>
