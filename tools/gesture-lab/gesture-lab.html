@@ -8,8 +8,14 @@
 :root{
   --bg:#fcfcfb;--panel:#ffffff;--ink:#0b0b0b;--ink2:#52514e;--ink3:#8a8984;--line:#e6e5e0;--codebg:#f6f5f1;
   --c-angOn:#c0143c;--c-angOff:#7b2cbf;--c-slop:#b45f00;--c-tri:#0b7a6f;--c-insetTop:#3f5170;--c-insetBottom:#3f5170;
-  --c-diag:#0b0b0b;--c-W:#6b7280;--c-H:#6b7280;
+  --c-diag:#0b0b0b;--c-W:#6b7280;--c-H:#6b7280;--c-triW:#0369a1;--c-rule:#0b0b0b;
 }
+.p-triW{color:var(--c-triW)}.p-rule{color:var(--c-rule)}
+
+body:not(.rule-proposed) .proposed{display:none}
+.proposed{margin-top:10px}
+.proposed pre.code{border-color:var(--c-triW);background:#f2f8fc}
+select.pv{font:inherit;font-weight:700;border:1.5px solid currentColor;border-radius:4px;background:#fff;color:inherit}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,sans-serif;margin:0;padding:20px 16px 60px}
 main{max-width:1400px;margin:auto}
@@ -53,7 +59,7 @@ canvas{display:block;touch-action:none}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .maprow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
 #diff{font:12px/1.6 ui-monospace,monospace;white-space:pre;overflow:auto;background:var(--codebg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0}
-.del{color:#b42318}.add{color:#067647}
+.del{color:#b42318;background:#fdecec}.add{color:#067647;background:#e9f7ef}.hk{color:#6250d6}.hd{color:var(--ink2);font-weight:600}
 </style>
 </head>
 <body>
@@ -68,77 +74,109 @@ canvas{display:block;touch-action:none}
 <div class="cols">
 <div>
 <p>The circle is touch-down <b>S</b>, the square is the dip/apex <b>A</b>, and the diamond is lift-off <b>E</b>. Drag any of them. Each pixel is coloured by the gesture you'd get if you lifted off there, with the path running S→E (straight) or S→A→E (via apex).</p>
-<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L27-L29" target="_blank">:27-29</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L37" target="_blank">:37</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L113-L118" target="_blank">:113-118</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L138" target="_blank">:138</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L220-L250" target="_blank">:220-250</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L297-L314" target="_blank">:297-314</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L345-L346" target="_blank">:345-346</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L351-L352" target="_blank">:351-352</a></div><pre class="code"><span class="ln">27</span>    private val <span class="id p-angOn">ANGULAR_THRESHOLD</span> = tan(Math.PI / <input class="pv p-angOn" data-k="angOn" type="number" step="any" aria-label="angOn">)
-<span class="ln">28</span>    private val <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span> = tan(Math.PI / <input class="pv p-angOff" data-k="angOff" type="number" step="any" aria-label="angOff">)
-<span class="ln">29</span>    private val <span class="id p-slop">TOUCH_SLOP</span>: Int
+<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L27-L29" target="_blank">:27-29</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L37" target="_blank">:37</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L113-L118" target="_blank">:113-118</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L138" target="_blank">:138</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L220-L250" target="_blank">:220-250</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L297-L314" target="_blank">:297-314</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L345-L346" target="_blank">:345-346</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L351-L352" target="_blank">:351-352</a></div><pre class="code"><span class="L"><span class="ln">27</span>    private val <span class="id p-angOn">ANGULAR_THRESHOLD</span> = tan(Math.PI / <input class="pv p-angOn" data-k="angOn" type="number" step="any" aria-label="angOn">)</span>
+<span class="L"><span class="ln">28</span>    private val <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span> = tan(Math.PI / <input class="pv p-angOff" data-k="angOff" type="number" step="any" aria-label="angOff">)</span>
+<span class="L"><span class="ln">29</span>    private val <span class="id p-slop">TOUCH_SLOP</span>: Int</span>
 <span class="ln">⋮</span>
-<span class="ln">37</span>    private val <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> = <input class="pv p-tri" data-k="tri" type="number" step="any" aria-label="tri">
+<span class="L"><span class="ln">37</span>    private val <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> = <input class="pv p-tri" data-k="tri" type="number" step="any" aria-label="tri"></span>
 <span class="ln">⋮</span>
-<span class="ln">113</span>    private fun PointerPath.startIntersectsSystemGestureInsets(): Boolean {
-<span class="ln">114</span>        val start = this.getStart()
-<span class="ln">115</span>        // ignore x, since this makes edge swipes very hard to execute
-<span class="ln">116</span>        return start.y &lt; <span class="id p-insetTop">systemGestureInsetTop</span>
-<span class="ln">117</span>                || start.y &gt; height - <span class="id p-insetBottom">systemGestureInsetBottom</span>
-<span class="ln">118</span>    }
+<span class="L"><span class="ln">113</span>    private fun PointerPath.startIntersectsSystemGestureInsets(): Boolean {</span>
+<span class="L"><span class="ln">114</span>        val start = this.getStart()</span>
+<span class="L"><span class="ln">115</span>        // ignore x, since this makes edge swipes very hard to execute</span>
+<span class="L"><span class="ln">116</span>        return start.y &lt; <span class="id p-insetTop">systemGestureInsetTop</span></span>
+<span class="L"><span class="ln">117</span>                || start.y &gt; height - <span class="id p-insetBottom">systemGestureInsetBottom</span></span>
+<span class="L"><span class="ln">118</span>    }</span>
 <span class="ln">⋮</span>
-<span class="ln">138</span>        <span class="id p-slop">TOUCH_SLOP</span> = configuration.scaledTouchSlop  <span class="chip p-slop">runtime scaledTouchSlop = <input class="pv p-slop" data-k="slop" type="number" step="any" aria-label="slop"></span>
+<span class="L"><span class="ln">138</span>        <span class="id p-slop">TOUCH_SLOP</span> = configuration.scaledTouchSlop  <span class="chip p-slop">runtime scaledTouchSlop = <input class="pv p-slop" data-k="slop" type="number" step="any" aria-label="slop"></span></span>
 <span class="ln">⋮</span>
-<span class="ln">220</span>    private fun getGestureForDirection(direction: Vector): Gesture? {
-<span class="ln">221</span>        val absX = abs(direction.x)
-<span class="ln">222</span>        val absY = abs(direction.y)
-<span class="ln">223</span>
-<span class="ln">224</span>        val angularThreshold = if (LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span>) {  <label class="chip p-diag">runtime diagonalSwipe() <input class="pv" data-k="diag" type="checkbox"></label>
-<span class="ln">225</span>            <span class="id p-angOn">ANGULAR_THRESHOLD</span>
-<span class="ln">226</span>        } else {
-<span class="ln">227</span>            <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span>
-<span class="ln">228</span>        }
-<span class="ln">229</span>
-<span class="ln">230</span>        return when {
-<span class="ln">231</span>            // horizontal
-<span class="ln">232</span>            angularThreshold * absX &gt; absY -&gt; {
-<span class="ln">233</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_RIGHT
-<span class="ln">234</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_LEFT
-<span class="ln">235</span>                else null
-<span class="ln">236</span>            }
-<span class="ln">237</span>            // vertical
-<span class="ln">238</span>            angularThreshold * absY &gt; absX -&gt; {
-<span class="ln">239</span>                if (direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_UP
-<span class="ln">240</span>                else if (direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_DOWN
-<span class="ln">241</span>                else null
-<span class="ln">242</span>            }
-<span class="ln">243</span>            // diagonal
-<span class="ln">244</span>            LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span> -&gt; {
-<span class="ln">245</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_SLASH_REVERSE
-<span class="ln">246</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_BACKSLASH_REVERSE
-<span class="ln">247</span>                else if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_BACKSLASH
-<span class="ln">248</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_SLASH
-<span class="ln">249</span>                else null
-<span class="ln">250</span>            }
+<span class="L"><span class="ln">220</span>    private fun getGestureForDirection(direction: Vector): Gesture? {</span>
+<span class="L"><span class="ln">221</span>        val absX = abs(direction.x)</span>
+<span class="L"><span class="ln">222</span>        val absY = abs(direction.y)</span>
+<span class="L"><span class="ln">223</span></span>
+<span class="L"><span class="ln">224</span>        val angularThreshold = if (LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span>) {  <label class="chip p-diag">runtime diagonalSwipe() <input class="pv" data-k="diag" type="checkbox"></label></span>
+<span class="L"><span class="ln">225</span>            <span class="id p-angOn">ANGULAR_THRESHOLD</span></span>
+<span class="L"><span class="ln">226</span>        } else {</span>
+<span class="L"><span class="ln">227</span>            <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span></span>
+<span class="L"><span class="ln">228</span>        }</span>
+<span class="L"><span class="ln">229</span></span>
+<span class="L"><span class="ln">230</span>        return when {</span>
+<span class="L"><span class="ln">231</span>            // horizontal</span>
+<span class="L"><span class="ln">232</span>            angularThreshold * absX &gt; absY -&gt; {</span>
+<span class="L"><span class="ln">233</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_RIGHT</span>
+<span class="L"><span class="ln">234</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_LEFT</span>
+<span class="L"><span class="ln">235</span>                else null</span>
+<span class="L"><span class="ln">236</span>            }</span>
+<span class="L"><span class="ln">237</span>            // vertical</span>
+<span class="L"><span class="ln">238</span>            angularThreshold * absY &gt; absX -&gt; {</span>
+<span class="L"><span class="ln">239</span>                if (direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_UP</span>
+<span class="L"><span class="ln">240</span>                else if (direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_DOWN</span>
+<span class="L"><span class="ln">241</span>                else null</span>
+<span class="L"><span class="ln">242</span>            }</span>
+<span class="L"><span class="ln">243</span>            // diagonal</span>
+<span class="L"><span class="ln">244</span>            LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span> -&gt; {</span>
+<span class="L"><span class="ln">245</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_SLASH_REVERSE</span>
+<span class="L"><span class="ln">246</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_BACKSLASH_REVERSE</span>
+<span class="L"><span class="ln">247</span>                else if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_BACKSLASH</span>
+<span class="L"><span class="ln">248</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_SLASH</span>
+<span class="L"><span class="ln">249</span>                else null</span>
+<span class="L"><span class="ln">250</span>            }</span>
 <span class="ln">⋮</span>
-<span class="ln">297</span>        val startEndMin = mainPointerPathStart.minimum(mainPointerPathEnd)
-<span class="ln">298</span>        val startEndMax = mainPointerPathStart.maximum(mainPointerPathEnd)
-<span class="ln">299</span>
-<span class="ln">300</span>        val mainPointerPathMin = mainPointerPath.getMin()
-<span class="ln">301</span>        val mainPointerPathMax = mainPointerPath.getMax()
-<span class="ln">302</span>
-<span class="ln">303</span>        // vertical triangle variants
-<span class="ln">304</span>        if (startEndMax.x + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.x) {
-<span class="ln">305</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.RIGHT)
-<span class="ln">306</span>        } else if (startEndMin.x - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.x) {
-<span class="ln">307</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.LEFT)
-<span class="ln">308</span>        }
-<span class="ln">309</span>
-<span class="ln">310</span>        // horizontal triangle variants
-<span class="ln">311</span>        if (startEndMax.y + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.y) {
-<span class="ln">312</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.DOWN)
-<span class="ln">313</span>        } else if (startEndMin.y - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.y) {
-<span class="ln">314</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.UP)
+<span class="L"><span class="ln">297</span>        val startEndMin = mainPointerPathStart.minimum(mainPointerPathEnd)</span>
+<span class="L"><span class="ln">298</span>        val startEndMax = mainPointerPathStart.maximum(mainPointerPathEnd)</span>
+<span class="L"><span class="ln">299</span></span>
+<span class="L"><span class="ln">300</span>        val mainPointerPathMin = mainPointerPath.getMin()</span>
+<span class="L"><span class="ln">301</span>        val mainPointerPathMax = mainPointerPath.getMax()</span>
+<span class="L"><span class="ln">302</span></span>
+<span class="L old"><span class="ln">303</span>        // vertical triangle variants</span>
+<span class="L old"><span class="ln">304</span>        if (startEndMax.x + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.x) {</span>
+<span class="L old"><span class="ln">305</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.RIGHT)</span>
+<span class="L old"><span class="ln">306</span>        } else if (startEndMin.x - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.x) {</span>
+<span class="L old"><span class="ln">307</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.LEFT)</span>
+<span class="L old"><span class="ln">308</span>        }</span>
+<span class="L old"><span class="ln">309</span></span>
+<span class="L old"><span class="ln">310</span>        // horizontal triangle variants</span>
+<span class="L old"><span class="ln">311</span>        if (startEndMax.y + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.y) {</span>
+<span class="L old"><span class="ln">312</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.DOWN)</span>
+<span class="L old"><span class="ln">313</span>        } else if (startEndMin.y - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.y) {</span>
+<span class="L old"><span class="ln">314</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.UP)</span>
 <span class="ln">⋮</span>
-<span class="ln">345</span>        width = displayMetrics.widthPixels  <span class="chip p-W">runtime widthPixels = <input class="pv p-W" data-k="W" type="number" step="any" aria-label="W"></span>
-<span class="ln">346</span>        height = displayMetrics.heightPixels  <span class="chip p-H">runtime heightPixels = <input class="pv p-H" data-k="H" type="number" step="any" aria-label="H"></span>
+<span class="L"><span class="ln">345</span>        width = displayMetrics.widthPixels  <span class="chip p-W">runtime widthPixels = <input class="pv p-W" data-k="W" type="number" step="any" aria-label="W"></span></span>
+<span class="L"><span class="ln">346</span>        height = displayMetrics.heightPixels  <span class="chip p-H">runtime heightPixels = <input class="pv p-H" data-k="H" type="number" step="any" aria-label="H"></span></span>
 <span class="ln">⋮</span>
-<span class="ln">351</span>        <span class="id p-insetTop">systemGestureInsetTop</span> = insets.top  <span class="chip p-insetTop">runtime insets.top = <input class="pv p-insetTop" data-k="insetTop" type="number" step="any" aria-label="insetTop"></span>
-<span class="ln">352</span>        <span class="id p-insetBottom">systemGestureInsetBottom</span> = insets.bottom  <span class="chip p-insetBottom">runtime insets.bottom = <input class="pv p-insetBottom" data-k="insetBottom" type="number" step="any" aria-label="insetBottom"></span></pre>
+<span class="L"><span class="ln">351</span>        <span class="id p-insetTop">systemGestureInsetTop</span> = insets.top  <span class="chip p-insetTop">runtime insets.top = <input class="pv p-insetTop" data-k="insetTop" type="number" step="any" aria-label="insetTop"></span></span>
+<span class="L"><span class="ln">352</span>        <span class="id p-insetBottom">systemGestureInsetBottom</span> = insets.bottom  <span class="chip p-insetBottom">runtime insets.bottom = <input class="pv p-insetBottom" data-k="insetBottom" type="number" step="any" aria-label="insetBottom"></span></span></pre>
+<div class="proposed"><div class="ref"><span>proposed</span>shape-first triangle rule (lines +22 to +26 replace <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L283-L288" target="_blank">:283-288</a>; +28 goes before <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L303-L314" target="_blank">:303-314</a>, +30 to +32 after it)</div><pre class="code"><span class="L"><span class="ln">+1</span>private val <span class="id p-triW">MIN_TRIANGLE_WIDTH</span> = <input class="pv p-triW" data-k="triW" type="number" step="any" aria-label="triW"></span>
+<span class="L"><span class="ln">+2</span></span>
+<span class="L"><span class="ln">+3</span>private fun PointerPath.getTriangleGesture(): Gesture? {</span>
+<span class="L"><span class="ln">+4</span>    val start = getStart(); val end = getEnd(); val pathMin = getMin(); val pathMax = getMax()</span>
+<span class="L"><span class="ln">+5</span>    val seMin = start.minimum(end); val seMax = start.maximum(end)</span>
+<span class="L"><span class="ln">+6</span>    val dx = end.x - start.x; val dy = end.y - start.y</span>
+<span class="L"><span class="ln">+7</span>    val down = pathMax.y - seMax.y; val up = seMin.y - pathMin.y</span>
+<span class="L"><span class="ln">+8</span>    val right = pathMax.x - seMax.x; val left = seMin.x - pathMin.x</span>
+<span class="L"><span class="ln">+9</span>    val vertical = max(down, up); val horizontal = max(right, left)</span>
+<span class="L"><span class="ln">+10</span>    if (max(vertical, horizontal) &lt;= <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span>) return null</span>
+<span class="L"><span class="ln">+11</span>    return if (vertical &gt;= horizontal) {</span>
+<span class="L"><span class="ln">+12</span>        if (abs(dx) &lt; <span class="id p-triW">MIN_TRIANGLE_WIDTH</span>) null</span>
+<span class="L"><span class="ln">+13</span>        else if (down &gt;= up) { if (dx &gt; 0) Gesture.SWIPE_V else Gesture.SWIPE_V_REVERSE }</span>
+<span class="L"><span class="ln">+14</span>        else { if (dx &gt; 0) Gesture.SWIPE_LAMBDA else Gesture.SWIPE_LAMBDA_REVERSE }</span>
+<span class="L"><span class="ln">+15</span>    } else {</span>
+<span class="L"><span class="ln">+16</span>        if (abs(dy) &lt; <span class="id p-triW">MIN_TRIANGLE_WIDTH</span>) null</span>
+<span class="L"><span class="ln">+17</span>        else if (left &gt;= right) { if (dy &gt; 0) Gesture.SWIPE_SMALLER else Gesture.SWIPE_SMALLER_REVERSE }</span>
+<span class="L"><span class="ln">+18</span>        else { if (dy &gt; 0) Gesture.SWIPE_LARGER else Gesture.SWIPE_LARGER_REVERSE }</span>
+<span class="L"><span class="ln">+19</span>    }</span>
+<span class="L"><span class="ln">+20</span>}</span>
+<span class="L"><span class="ln">+21</span></span>
+<span class="L"><span class="ln">+22</span>val triangle = if (pointerCount == 1) mainPointerPath.getTriangleGesture() else null</span>
+<span class="L"><span class="ln">+23</span>var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: triangle ?: return</span>
+<span class="L"><span class="ln">+24</span>if (pointerCount &gt; 1 &amp;&amp; idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {</span>
+<span class="L"><span class="ln">+25</span>    return</span>
+<span class="L"><span class="ln">+26</span>}</span>
+<span class="L"><span class="ln">+27</span></span>
+<span class="L"><span class="ln">+28</span>val beforeTriangleVariants = gesture</span>
+<span class="L"><span class="ln">+29</span></span>
+<span class="L"><span class="ln">+30</span>if (gesture == beforeTriangleVariants &amp;&amp; triangle != null) {</span>
+<span class="L"><span class="ln">+31</span>    gesture = triangle</span>
+<span class="L"><span class="ln">+32</span>}</span></pre></div>
 <div class="eq" id="eqMap"></div>
 </div>
 <div>
@@ -161,33 +199,33 @@ canvas{display:block;touch-action:none}
 <h2>2 · Angular wedges: diagonals on vs off</h2>
 <div class="cols">
 <div>
-<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L27-L28" target="_blank">:27-28</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L220-L243" target="_blank">:220-243</a></div><pre class="code"><span class="ln">27</span>    private val <span class="id p-angOn">ANGULAR_THRESHOLD</span> = tan(Math.PI / <input class="pv p-angOn" data-k="angOn" type="number" step="any" aria-label="angOn">)
-<span class="ln">28</span>    private val <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span> = tan(Math.PI / <input class="pv p-angOff" data-k="angOff" type="number" step="any" aria-label="angOff">)
+<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L27-L28" target="_blank">:27-28</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L220-L243" target="_blank">:220-243</a></div><pre class="code"><span class="L"><span class="ln">27</span>    private val <span class="id p-angOn">ANGULAR_THRESHOLD</span> = tan(Math.PI / <input class="pv p-angOn" data-k="angOn" type="number" step="any" aria-label="angOn">)</span>
+<span class="L"><span class="ln">28</span>    private val <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span> = tan(Math.PI / <input class="pv p-angOff" data-k="angOff" type="number" step="any" aria-label="angOff">)</span>
 <span class="ln">⋮</span>
-<span class="ln">220</span>    private fun getGestureForDirection(direction: Vector): Gesture? {
-<span class="ln">221</span>        val absX = abs(direction.x)
-<span class="ln">222</span>        val absY = abs(direction.y)
-<span class="ln">223</span>
-<span class="ln">224</span>        val angularThreshold = if (LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span>) {  <label class="chip p-diag">runtime diagonalSwipe() <input class="pv" data-k="diag" type="checkbox"></label>
-<span class="ln">225</span>            <span class="id p-angOn">ANGULAR_THRESHOLD</span>
-<span class="ln">226</span>        } else {
-<span class="ln">227</span>            <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span>
-<span class="ln">228</span>        }
-<span class="ln">229</span>
-<span class="ln">230</span>        return when {
-<span class="ln">231</span>            // horizontal
-<span class="ln">232</span>            angularThreshold * absX &gt; absY -&gt; {
-<span class="ln">233</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_RIGHT
-<span class="ln">234</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_LEFT
-<span class="ln">235</span>                else null
-<span class="ln">236</span>            }
-<span class="ln">237</span>            // vertical
-<span class="ln">238</span>            angularThreshold * absY &gt; absX -&gt; {
-<span class="ln">239</span>                if (direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_UP
-<span class="ln">240</span>                else if (direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_DOWN
-<span class="ln">241</span>                else null
-<span class="ln">242</span>            }
-<span class="ln">243</span>            // diagonal</pre>
+<span class="L"><span class="ln">220</span>    private fun getGestureForDirection(direction: Vector): Gesture? {</span>
+<span class="L"><span class="ln">221</span>        val absX = abs(direction.x)</span>
+<span class="L"><span class="ln">222</span>        val absY = abs(direction.y)</span>
+<span class="L"><span class="ln">223</span></span>
+<span class="L"><span class="ln">224</span>        val angularThreshold = if (LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span>) {  <label class="chip p-diag">runtime diagonalSwipe() <input class="pv" data-k="diag" type="checkbox"></label></span>
+<span class="L"><span class="ln">225</span>            <span class="id p-angOn">ANGULAR_THRESHOLD</span></span>
+<span class="L"><span class="ln">226</span>        } else {</span>
+<span class="L"><span class="ln">227</span>            <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span></span>
+<span class="L"><span class="ln">228</span>        }</span>
+<span class="L"><span class="ln">229</span></span>
+<span class="L"><span class="ln">230</span>        return when {</span>
+<span class="L"><span class="ln">231</span>            // horizontal</span>
+<span class="L"><span class="ln">232</span>            angularThreshold * absX &gt; absY -&gt; {</span>
+<span class="L"><span class="ln">233</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_RIGHT</span>
+<span class="L"><span class="ln">234</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_LEFT</span>
+<span class="L"><span class="ln">235</span>                else null</span>
+<span class="L"><span class="ln">236</span>            }</span>
+<span class="L"><span class="ln">237</span>            // vertical</span>
+<span class="L"><span class="ln">238</span>            angularThreshold * absY &gt; absX -&gt; {</span>
+<span class="L"><span class="ln">239</span>                if (direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_UP</span>
+<span class="L"><span class="ln">240</span>                else if (direction.y &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_DOWN</span>
+<span class="L"><span class="ln">241</span>                else null</span>
+<span class="L"><span class="ln">242</span>            }</span>
+<span class="L"><span class="ln">243</span>            // diagonal</span></pre>
 <div class="eq" id="eqRose"></div>
 </div>
 <div>
@@ -202,37 +240,69 @@ canvas{display:block;touch-action:none}
 <div class="cols">
 <div>
 <p>A V attempt is S=(0,0) → A=(w/2, depth) → E=(w, Δy). Positive y points <i>down</i> the screen. The result doesn't depend on where on the screen you start, apart from the insets.</p>
-<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L27-L28" target="_blank">:27-28</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L37" target="_blank">:37</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L224-L235" target="_blank">:224-235</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L245" target="_blank">:245</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L297-L301" target="_blank">:297-301</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L310-L314" target="_blank">:310-314</a></div><pre class="code"><span class="ln">27</span>    private val <span class="id p-angOn">ANGULAR_THRESHOLD</span> = tan(Math.PI / <input class="pv p-angOn" data-k="angOn" type="number" step="any" aria-label="angOn">)
-<span class="ln">28</span>    private val <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span> = tan(Math.PI / <input class="pv p-angOff" data-k="angOff" type="number" step="any" aria-label="angOff">)
+<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L27-L28" target="_blank">:27-28</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L37" target="_blank">:37</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L224-L235" target="_blank">:224-235</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L245" target="_blank">:245</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L297-L301" target="_blank">:297-301</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L310-L314" target="_blank">:310-314</a></div><pre class="code"><span class="L"><span class="ln">27</span>    private val <span class="id p-angOn">ANGULAR_THRESHOLD</span> = tan(Math.PI / <input class="pv p-angOn" data-k="angOn" type="number" step="any" aria-label="angOn">)</span>
+<span class="L"><span class="ln">28</span>    private val <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span> = tan(Math.PI / <input class="pv p-angOff" data-k="angOff" type="number" step="any" aria-label="angOff">)</span>
 <span class="ln">⋮</span>
-<span class="ln">37</span>    private val <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> = <input class="pv p-tri" data-k="tri" type="number" step="any" aria-label="tri">
+<span class="L"><span class="ln">37</span>    private val <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> = <input class="pv p-tri" data-k="tri" type="number" step="any" aria-label="tri"></span>
 <span class="ln">⋮</span>
-<span class="ln">224</span>        val angularThreshold = if (LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span>) {  <label class="chip p-diag">runtime diagonalSwipe() <input class="pv" data-k="diag" type="checkbox"></label>
-<span class="ln">225</span>            <span class="id p-angOn">ANGULAR_THRESHOLD</span>
-<span class="ln">226</span>        } else {
-<span class="ln">227</span>            <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span>
-<span class="ln">228</span>        }
-<span class="ln">229</span>
-<span class="ln">230</span>        return when {
-<span class="ln">231</span>            // horizontal
-<span class="ln">232</span>            angularThreshold * absX &gt; absY -&gt; {
-<span class="ln">233</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_RIGHT
-<span class="ln">234</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_LEFT
-<span class="ln">235</span>                else null
+<span class="L"><span class="ln">224</span>        val angularThreshold = if (LauncherPreferences.enabled_gestures().<span class="id p-diag">diagonalSwipe()</span>) {  <label class="chip p-diag">runtime diagonalSwipe() <input class="pv" data-k="diag" type="checkbox"></label></span>
+<span class="L"><span class="ln">225</span>            <span class="id p-angOn">ANGULAR_THRESHOLD</span></span>
+<span class="L"><span class="ln">226</span>        } else {</span>
+<span class="L"><span class="ln">227</span>            <span class="id p-angOff">ANGULAR_THRESHOLD_NO_DIAGONALS</span></span>
+<span class="L"><span class="ln">228</span>        }</span>
+<span class="L"><span class="ln">229</span></span>
+<span class="L"><span class="ln">230</span>        return when {</span>
+<span class="L"><span class="ln">231</span>            // horizontal</span>
+<span class="L"><span class="ln">232</span>            angularThreshold * absX &gt; absY -&gt; {</span>
+<span class="L"><span class="ln">233</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_RIGHT</span>
+<span class="L"><span class="ln">234</span>                else if (direction.x &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_LEFT</span>
+<span class="L"><span class="ln">235</span>                else null</span>
 <span class="ln">⋮</span>
-<span class="ln">245</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_SLASH_REVERSE
+<span class="L"><span class="ln">245</span>                if (direction.x &gt; <span class="id p-slop">TOUCH_SLOP</span> &amp;&amp; direction.y &lt; -<span class="id p-slop">TOUCH_SLOP</span>) Gesture.SWIPE_SLASH_REVERSE</span>
 <span class="ln">⋮</span>
-<span class="ln">297</span>        val startEndMin = mainPointerPathStart.minimum(mainPointerPathEnd)
-<span class="ln">298</span>        val startEndMax = mainPointerPathStart.maximum(mainPointerPathEnd)
-<span class="ln">299</span>
-<span class="ln">300</span>        val mainPointerPathMin = mainPointerPath.getMin()
-<span class="ln">301</span>        val mainPointerPathMax = mainPointerPath.getMax()
+<span class="L"><span class="ln">297</span>        val startEndMin = mainPointerPathStart.minimum(mainPointerPathEnd)</span>
+<span class="L"><span class="ln">298</span>        val startEndMax = mainPointerPathStart.maximum(mainPointerPathEnd)</span>
+<span class="L"><span class="ln">299</span></span>
+<span class="L"><span class="ln">300</span>        val mainPointerPathMin = mainPointerPath.getMin()</span>
+<span class="L"><span class="ln">301</span>        val mainPointerPathMax = mainPointerPath.getMax()</span>
 <span class="ln">⋮</span>
-<span class="ln">310</span>        // horizontal triangle variants
-<span class="ln">311</span>        if (startEndMax.y + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.y) {
-<span class="ln">312</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.DOWN)
-<span class="ln">313</span>        } else if (startEndMin.y - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.y) {
-<span class="ln">314</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.UP)</pre>
+<span class="L old"><span class="ln">310</span>        // horizontal triangle variants</span>
+<span class="L old"><span class="ln">311</span>        if (startEndMax.y + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.y) {</span>
+<span class="L old"><span class="ln">312</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.DOWN)</span>
+<span class="L old"><span class="ln">313</span>        } else if (startEndMin.y - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.y) {</span>
+<span class="L old"><span class="ln">314</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.UP)</span></pre>
+<div class="proposed"><div class="ref"><span>proposed</span>shape-first triangle rule (lines +22 to +26 replace <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L283-L288" target="_blank">:283-288</a>; +28 goes before <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L303-L314" target="_blank">:303-314</a>, +30 to +32 after it)</div><pre class="code"><span class="L"><span class="ln">+1</span>private val <span class="id p-triW">MIN_TRIANGLE_WIDTH</span> = <input class="pv p-triW" data-k="triW" type="number" step="any" aria-label="triW"></span>
+<span class="L"><span class="ln">+2</span></span>
+<span class="L"><span class="ln">+3</span>private fun PointerPath.getTriangleGesture(): Gesture? {</span>
+<span class="L"><span class="ln">+4</span>    val start = getStart(); val end = getEnd(); val pathMin = getMin(); val pathMax = getMax()</span>
+<span class="L"><span class="ln">+5</span>    val seMin = start.minimum(end); val seMax = start.maximum(end)</span>
+<span class="L"><span class="ln">+6</span>    val dx = end.x - start.x; val dy = end.y - start.y</span>
+<span class="L"><span class="ln">+7</span>    val down = pathMax.y - seMax.y; val up = seMin.y - pathMin.y</span>
+<span class="L"><span class="ln">+8</span>    val right = pathMax.x - seMax.x; val left = seMin.x - pathMin.x</span>
+<span class="L"><span class="ln">+9</span>    val vertical = max(down, up); val horizontal = max(right, left)</span>
+<span class="L"><span class="ln">+10</span>    if (max(vertical, horizontal) &lt;= <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span>) return null</span>
+<span class="L"><span class="ln">+11</span>    return if (vertical &gt;= horizontal) {</span>
+<span class="L"><span class="ln">+12</span>        if (abs(dx) &lt; <span class="id p-triW">MIN_TRIANGLE_WIDTH</span>) null</span>
+<span class="L"><span class="ln">+13</span>        else if (down &gt;= up) { if (dx &gt; 0) Gesture.SWIPE_V else Gesture.SWIPE_V_REVERSE }</span>
+<span class="L"><span class="ln">+14</span>        else { if (dx &gt; 0) Gesture.SWIPE_LAMBDA else Gesture.SWIPE_LAMBDA_REVERSE }</span>
+<span class="L"><span class="ln">+15</span>    } else {</span>
+<span class="L"><span class="ln">+16</span>        if (abs(dy) &lt; <span class="id p-triW">MIN_TRIANGLE_WIDTH</span>) null</span>
+<span class="L"><span class="ln">+17</span>        else if (left &gt;= right) { if (dy &gt; 0) Gesture.SWIPE_SMALLER else Gesture.SWIPE_SMALLER_REVERSE }</span>
+<span class="L"><span class="ln">+18</span>        else { if (dy &gt; 0) Gesture.SWIPE_LARGER else Gesture.SWIPE_LARGER_REVERSE }</span>
+<span class="L"><span class="ln">+19</span>    }</span>
+<span class="L"><span class="ln">+20</span>}</span>
+<span class="L"><span class="ln">+21</span></span>
+<span class="L"><span class="ln">+22</span>val triangle = if (pointerCount == 1) mainPointerPath.getTriangleGesture() else null</span>
+<span class="L"><span class="ln">+23</span>var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: triangle ?: return</span>
+<span class="L"><span class="ln">+24</span>if (pointerCount &gt; 1 &amp;&amp; idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {</span>
+<span class="L"><span class="ln">+25</span>    return</span>
+<span class="L"><span class="ln">+26</span>}</span>
+<span class="L"><span class="ln">+27</span></span>
+<span class="L"><span class="ln">+28</span>val beforeTriangleVariants = gesture</span>
+<span class="L"><span class="ln">+29</span></span>
+<span class="L"><span class="ln">+30</span>if (gesture == beforeTriangleVariants &amp;&amp; triangle != null) {</span>
+<span class="L"><span class="ln">+31</span>    gesture = triangle</span>
+<span class="L"><span class="ln">+32</span>}</span></pre></div>
 <div class="eq" id="eqV"></div>
 </div>
 <div>
@@ -250,27 +320,59 @@ canvas{display:block;touch-action:none}
 <h2>4 · Arc tolerance on a straight swipe</h2>
 <div class="cols">
 <div>
-<p>Model the swipe as a circular arc with chord length <var>L</var> and sagitta <var>s</var>. Only the path's bounding box gets checked, so the arc becomes a triangle gesture once <var>s</var> &gt; <var>h</var>. Diagonal swipes have no triangle variant, so their arc tolerance is unlimited.</p>
-<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L37" target="_blank">:37</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L297-L314" target="_blank">:297-314</a></div><pre class="code"><span class="ln">37</span>    private val <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> = <input class="pv p-tri" data-k="tri" type="number" step="any" aria-label="tri">
+<p>Model the swipe as a circular arc with chord length <var>L</var> and sagitta <var>s</var>. Only the path's bounding box gets checked, so the arc becomes a triangle gesture once <var>s</var> &gt; <var>h</var>. Under the current rule, diagonal swipes have no triangle variant, so their arc tolerance is unlimited. Under the proposed rule, a diagonal that bulges past its ends by more than <var>h</var> also becomes a triangle.</p>
+<div class="ref"><span>TouchGestureDetector.kt</span><a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L37" target="_blank">:37</a> <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L297-L314" target="_blank">:297-314</a></div><pre class="code"><span class="L"><span class="ln">37</span>    private val <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> = <input class="pv p-tri" data-k="tri" type="number" step="any" aria-label="tri"></span>
 <span class="ln">⋮</span>
-<span class="ln">297</span>        val startEndMin = mainPointerPathStart.minimum(mainPointerPathEnd)
-<span class="ln">298</span>        val startEndMax = mainPointerPathStart.maximum(mainPointerPathEnd)
-<span class="ln">299</span>
-<span class="ln">300</span>        val mainPointerPathMin = mainPointerPath.getMin()
-<span class="ln">301</span>        val mainPointerPathMax = mainPointerPath.getMax()
-<span class="ln">302</span>
-<span class="ln">303</span>        // vertical triangle variants
-<span class="ln">304</span>        if (startEndMax.x + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.x) {
-<span class="ln">305</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.RIGHT)
-<span class="ln">306</span>        } else if (startEndMin.x - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.x) {
-<span class="ln">307</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.LEFT)
-<span class="ln">308</span>        }
-<span class="ln">309</span>
-<span class="ln">310</span>        // horizontal triangle variants
-<span class="ln">311</span>        if (startEndMax.y + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.y) {
-<span class="ln">312</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.DOWN)
-<span class="ln">313</span>        } else if (startEndMin.y - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.y) {
-<span class="ln">314</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.UP)</pre>
+<span class="L"><span class="ln">297</span>        val startEndMin = mainPointerPathStart.minimum(mainPointerPathEnd)</span>
+<span class="L"><span class="ln">298</span>        val startEndMax = mainPointerPathStart.maximum(mainPointerPathEnd)</span>
+<span class="L"><span class="ln">299</span></span>
+<span class="L"><span class="ln">300</span>        val mainPointerPathMin = mainPointerPath.getMin()</span>
+<span class="L"><span class="ln">301</span>        val mainPointerPathMax = mainPointerPath.getMax()</span>
+<span class="L"><span class="ln">302</span></span>
+<span class="L old"><span class="ln">303</span>        // vertical triangle variants</span>
+<span class="L old"><span class="ln">304</span>        if (startEndMax.x + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.x) {</span>
+<span class="L old"><span class="ln">305</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.RIGHT)</span>
+<span class="L old"><span class="ln">306</span>        } else if (startEndMin.x - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.x) {</span>
+<span class="L old"><span class="ln">307</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.LEFT)</span>
+<span class="L old"><span class="ln">308</span>        }</span>
+<span class="L old"><span class="ln">309</span></span>
+<span class="L old"><span class="ln">310</span>        // horizontal triangle variants</span>
+<span class="L old"><span class="ln">311</span>        if (startEndMax.y + <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &lt; mainPointerPathMax.y) {</span>
+<span class="L old"><span class="ln">312</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.DOWN)</span>
+<span class="L old"><span class="ln">313</span>        } else if (startEndMin.y - <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span> &gt; mainPointerPathMin.y) {</span>
+<span class="L old"><span class="ln">314</span>            gesture = gesture.getTriangleVariant(Gesture.Direction.UP)</span></pre>
+<div class="proposed"><div class="ref"><span>proposed</span>shape-first triangle rule (lines +22 to +26 replace <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L283-L288" target="_blank">:283-288</a>; +28 goes before <a href="https://github.com/wassupluke/launcher/blob/5cdf0f680d0816339b6c3822f0bbe6e112f272cb/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt#L303-L314" target="_blank">:303-314</a>, +30 to +32 after it)</div><pre class="code"><span class="L"><span class="ln">+1</span>private val <span class="id p-triW">MIN_TRIANGLE_WIDTH</span> = <input class="pv p-triW" data-k="triW" type="number" step="any" aria-label="triW"></span>
+<span class="L"><span class="ln">+2</span></span>
+<span class="L"><span class="ln">+3</span>private fun PointerPath.getTriangleGesture(): Gesture? {</span>
+<span class="L"><span class="ln">+4</span>    val start = getStart(); val end = getEnd(); val pathMin = getMin(); val pathMax = getMax()</span>
+<span class="L"><span class="ln">+5</span>    val seMin = start.minimum(end); val seMax = start.maximum(end)</span>
+<span class="L"><span class="ln">+6</span>    val dx = end.x - start.x; val dy = end.y - start.y</span>
+<span class="L"><span class="ln">+7</span>    val down = pathMax.y - seMax.y; val up = seMin.y - pathMin.y</span>
+<span class="L"><span class="ln">+8</span>    val right = pathMax.x - seMax.x; val left = seMin.x - pathMin.x</span>
+<span class="L"><span class="ln">+9</span>    val vertical = max(down, up); val horizontal = max(right, left)</span>
+<span class="L"><span class="ln">+10</span>    if (max(vertical, horizontal) &lt;= <span class="id p-tri">MIN_TRIANGLE_HEIGHT</span>) return null</span>
+<span class="L"><span class="ln">+11</span>    return if (vertical &gt;= horizontal) {</span>
+<span class="L"><span class="ln">+12</span>        if (abs(dx) &lt; <span class="id p-triW">MIN_TRIANGLE_WIDTH</span>) null</span>
+<span class="L"><span class="ln">+13</span>        else if (down &gt;= up) { if (dx &gt; 0) Gesture.SWIPE_V else Gesture.SWIPE_V_REVERSE }</span>
+<span class="L"><span class="ln">+14</span>        else { if (dx &gt; 0) Gesture.SWIPE_LAMBDA else Gesture.SWIPE_LAMBDA_REVERSE }</span>
+<span class="L"><span class="ln">+15</span>    } else {</span>
+<span class="L"><span class="ln">+16</span>        if (abs(dy) &lt; <span class="id p-triW">MIN_TRIANGLE_WIDTH</span>) null</span>
+<span class="L"><span class="ln">+17</span>        else if (left &gt;= right) { if (dy &gt; 0) Gesture.SWIPE_SMALLER else Gesture.SWIPE_SMALLER_REVERSE }</span>
+<span class="L"><span class="ln">+18</span>        else { if (dy &gt; 0) Gesture.SWIPE_LARGER else Gesture.SWIPE_LARGER_REVERSE }</span>
+<span class="L"><span class="ln">+19</span>    }</span>
+<span class="L"><span class="ln">+20</span>}</span>
+<span class="L"><span class="ln">+21</span></span>
+<span class="L"><span class="ln">+22</span>val triangle = if (pointerCount == 1) mainPointerPath.getTriangleGesture() else null</span>
+<span class="L"><span class="ln">+23</span>var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: triangle ?: return</span>
+<span class="L"><span class="ln">+24</span>if (pointerCount &gt; 1 &amp;&amp; idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {</span>
+<span class="L"><span class="ln">+25</span>    return</span>
+<span class="L"><span class="ln">+26</span>}</span>
+<span class="L"><span class="ln">+27</span></span>
+<span class="L"><span class="ln">+28</span>val beforeTriangleVariants = gesture</span>
+<span class="L"><span class="ln">+29</span></span>
+<span class="L"><span class="ln">+30</span>if (gesture == beforeTriangleVariants &amp;&amp; triangle != null) {</span>
+<span class="L"><span class="ln">+31</span>    gesture = triangle</span>
+<span class="L"><span class="ln">+32</span>}</span></pre></div>
 <div class="eq" id="eqArc"></div>
 </div>
 <div>
@@ -280,14 +382,14 @@ canvas{display:block;touch-action:none}
 </section>
 
 <section>
-<h2>Your edits as a diff</h2>
+<h2 id="diffTitle">Your edits as a diff</h2>
 <pre id="diff"></pre>
 </section>
 </main>
 
 <script>
-const ORIG = {angOn: 8, angOff: 6, slop: 24, tri: 250, insetTop: 187, insetBottom: 96, W: 1344, H: 2992, diag: true};
-const PARAM_LABEL = {angOn: "ANGULAR_THRESHOLD = tan(π / n)", angOff: "ANGULAR_THRESHOLD_NO_DIAGONALS = tan(π / n)", slop: "TOUCH_SLOP (px)", tri: "MIN_TRIANGLE_HEIGHT (px)", insetTop: "systemGestureInsetTop", insetBottom: "systemGestureInsetBottom", W: "width", H: "height", diag: "diagonalSwipe()"};
+const ORIG = {angOn: 8, angOff: 6, slop: 24, tri: 250, insetTop: 187, insetBottom: 96, W: 1344, H: 2992, diag: true, rule: "current", triW: 125};
+const PARAM_LABEL = {angOn: "ANGULAR_THRESHOLD = tan(π / n)", angOff: "ANGULAR_THRESHOLD_NO_DIAGONALS = tan(π / n)", slop: "TOUCH_SLOP (px)", tri: "MIN_TRIANGLE_HEIGHT (px)", insetTop: "systemGestureInsetTop", insetBottom: "systemGestureInsetBottom", W: "width", H: "height", diag: "diagonalSwipe()", triW: "MIN_TRIANGLE_WIDTH (px, proposed)"};
 const DIFF_LINE = {
   angOn: [27, v => `    private val ANGULAR_THRESHOLD = tan(Math.PI / ${v})`],
   angOff: [28, v => `    private val ANGULAR_THRESHOLD_NO_DIAGONALS = tan(Math.PI / ${v})`],
@@ -329,8 +431,26 @@ function dirG(dx, dy, t, diag = S.diag) {
   }
   return 0;
 }
-function classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t) {
+function triangleFirst(sx, sy, ex, ey, mnx, mxx, mny, mxy) {
+  const dx = ex - sx, dy = ey - sy;
+  const down = mxy - Math.max(sy, ey), up = Math.min(sy, ey) - mny;
+  const right = mxx - Math.max(sx, ex), left = Math.min(sx, ex) - mnx;
+  const vert = Math.max(down, up), hor = Math.max(right, left);
+  if (Math.max(vert, hor) <= S.tri) return 0;
+  if (vert >= hor) {
+    if (Math.abs(dx) < S.triW) return 0;
+    return down >= up ? (dx > 0 ? ix("SWIPE_V") : ix("SWIPE_V_REVERSE")) : (dx > 0 ? ix("SWIPE_LAMBDA") : ix("SWIPE_LAMBDA_REVERSE"));
+  }
+  if (Math.abs(dy) < S.triW) return 0;
+  return left >= right ? (dy > 0 ? ix("SWIPE_SMALLER") : ix("SWIPE_SMALLER_REVERSE")) : (dy > 0 ? ix("SWIPE_LARGER") : ix("SWIPE_LARGER_REVERSE"));
+}
+function classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t, rule = S.rule) {
   if (sy < S.insetTop || sy > S.H - S.insetBottom) return BLOCKED;
+  if (rule === "proposed") {
+    const cur = classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t, "current");
+    if (cur >= 9 && cur <= 16) return cur;
+    return triangleFirst(sx, sy, ex, ey, mnx, mxx, mny, mxy) || cur;
+  }
   let g = dirG(ex - sx, ey - sy, t);
   if (!g) return 0;
   const h = S.tri;
@@ -341,11 +461,11 @@ function classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t) {
   else if (seMinY - h > mny) g = TRI.UP[g] ?? g;
   return g;
 }
-function classifyPts(pts, t) {
+function classifyPts(pts, t, rule = S.rule) {
   let mnx = Infinity, mxx = -Infinity, mny = Infinity, mxy = -Infinity;
   for (const [x, y] of pts) { mnx = Math.min(mnx, x); mxx = Math.max(mxx, x); mny = Math.min(mny, y); mxy = Math.max(mxy, y); }
   const [sx, sy] = pts[0], [ex, ey] = pts[pts.length - 1];
-  return classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t);
+  return classify(sx, sy, ex, ey, mnx, mxx, mny, mxy, t, rule);
 }
 const deg = r => r * 180 / Math.PI;
 const f = (v, d = 0) => Number(v).toFixed(d);
@@ -441,6 +561,14 @@ function drawMap() {
     dline(ctx, (mnX - h) * k, 0, (mnX - h) * k, dispH, tl, [3, 4], 1.6);
     halo(ctx, `max(S.y,E.y)+h`, cw - 6, (mxY + h) * k - 9, tl, "600 11px system-ui", "right");
     halo(ctx, `min(S.y,E.y)−h`, cw - 6, (mnY - h) * k - 9, tl, "600 11px system-ui", "right");
+    if (S.rule === "proposed") {
+      const wc = PC("triW"), q = S.triW;
+      for (const s of [-1, 1]) {
+        dline(ctx, (sx + s * q) * k, 0, (sx + s * q) * k, dispH, wc, [2, 3], 1.4);
+        dline(ctx, 0, (sy + s * q) * k, cw, (sy + s * q) * k, wc, [2, 3], 1.4);
+      }
+      halo(ctx, `S.x ± MIN_TRIANGLE_WIDTH`, (sx + q) * k + 4, 14, wc, "600 11px system-ui", "left");
+    }
     dline(ctx, sx * k, sy * k, P.A[0] * k, P.A[1] * k, "#0b0b0b", [], 2.2);
     dline(ctx, P.A[0] * k, P.A[1] * k, ex * k, ey * k, "#0b0b0b", [], 2.2);
   } else dline(ctx, sx * k, sy * k, ex * k, ey * k, "#0b0b0b", [], 2.2);
@@ -566,6 +694,17 @@ function drawV() {
   ctx.restore();
   ctx.strokeStyle = "#cfcdc6"; ctx.strokeRect(VPAD.l + .5, VPAD.t + .5, pw, ph);
   vGeom.X = X; vGeom.Y = Y; vGeom.w = w;
+  const area = {current: 0, proposed: 0}, n = 120;
+  for (const rule of ["current", "proposed"]) for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const dy = VX[0] + (i + .5) / n * (VX[1] - VX[0]), dep = VY[0] + (j + .5) / n * (VY[1] - VY[0]);
+    if (classifyPts([[0, sy], [w / 2, sy + dep], [w, sy + dy]], t, rule) === ix("SWIPE_V")) area[rule]++;
+  }
+  const pct = r => f(area[r] / (n * n) * 100);
+  const box = `V area  current ${pct("current")}%  ·  proposed ${pct("proposed")}%   (rule shown: ${S.rule})`;
+  ctx.font = "600 12px system-ui"; const bw = ctx.measureText(box).width + 16;
+  ctx.fillStyle = "rgba(255,255,255,.93)"; ctx.fillRect(VPAD.l + 8, VPAD.t + ph - 30, bw, 22);
+  ctx.strokeStyle = "#cfcdc6"; ctx.strokeRect(VPAD.l + 8.5, VPAD.t + ph - 29.5, bw, 22);
+  ctx.fillStyle = "#0b0b0b"; ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillText(box, VPAD.l + 16, VPAD.t + ph - 19);
   legend("vLegend", [...present]);
 }
 vmap.addEventListener("pointermove", e => {
@@ -627,8 +766,12 @@ function equations() {
   <div class="row"><var>t</var> = tan(π / ${P_(key)}) = tan(π / ${PV(key, 2)}) = ${num(t, 4)}  ⇒ wedge edge at ±${num(half, 2)}° <span style="color:var(--ink3)">L27-28, L224-228</span></div>
   <div class="row">horizontal ⇔ <var>t</var>·|<var>d<sub>x</sub></var>| &gt; |<var>d<sub>y</sub></var>|,  vertical ⇔ <var>t</var>·|<var>d<sub>y</sub></var>| &gt; |<var>d<sub>x</sub></var>|,  else diagonal${S.diag ? "" : " → <b>none</b> (diagonals off)"} <span style="color:var(--ink3)">L231-249</span></div>
   <div class="row">Right ⇔ horizontal ∧ <var>d<sub>x</sub></var> &gt; ${P_("slop")} (${PV("slop")});  diagonal needs |<var>d<sub>x</sub></var>|, |<var>d<sub>y</sub></var>| &gt; ${PV("slop")}</div>
-  <div class="row">triangle ↓ ⇔ max<sub>path</sub> <var>y</var> &gt; max(<var>S<sub>y</sub></var>, <var>E<sub>y</sub></var>) + ${P_("tri")} = ${num(Math.max(sy, ey) + S.tri)}  (likewise ↑ ← →) <span style="color:var(--ink3)">L304-314</span></div>
-  <div class="row">V = Right + ↓,  Λ = Right + ↑,  &lt; = Down + ←,  &gt; = Down + → (and “reverse” = opposite chord)</div>
+  ${S.rule === "current" ? `<div class="row">triangle ↓ ⇔ max<sub>path</sub> <var>y</var> &gt; max(<var>S<sub>y</sub></var>, <var>E<sub>y</sub></var>) + ${P_("tri")} = ${num(Math.max(sy, ey) + S.tri)}  (likewise ↑ ← →) <span style="color:var(--ink3)">L304-314</span></div>
+  <div class="row">V = Right + ↓,  Λ = Right + ↑,  &lt; = Down + ←,  &gt; = Down + → (and “reverse” = opposite chord). Applied <i>after</i> the direction, so a tilted chord never becomes a triangle.</div>`
+  : `<div class="row"><b>proposed, used only when the current rule doesn't already give a triangle:</b> bulge ↓ = max<sub>path</sub> <var>y</var> − max(<var>S<sub>y</sub></var>, <var>E<sub>y</sub></var>), and likewise ↑ → ←</div>
+  <div class="row">triangle ⇔ max(↓, ↑, →, ←) &gt; ${P_("tri")} (${PV("tri")});  vertical family if max(↓,↑) ≥ max(→,←)</div>
+  <div class="row">V/Λ ⇔ vertical ∧ |<var>d<sub>x</sub></var>| ≥ <span class="p-triW"><b>W</b></span> (${PV("triW")});  &lt;/&gt; ⇔ horizontal ∧ |<var>d<sub>y</sub></var>| ≥ ${PV("triW")};  chord angle is ignored</div>
+  <div class="row">V ⇔ ↓ ≥ ↑ ∧ <var>d<sub>x</sub></var> &gt; 0;  Λ ⇔ ↑ &gt; ↓ ∧ <var>d<sub>x</sub></var> &gt; 0;  &lt; ⇔ ← ≥ → ∧ <var>d<sub>y</sub></var> &gt; 0;  &gt; ⇔ → &gt; ← ∧ <var>d<sub>y</sub></var> &gt; 0 (reverse = opposite sign)</div>`}
   <div class="row">touch-down rejected ⇔ <var>S<sub>y</sub></var> &lt; ${P_("insetTop")} (${PV("insetTop")}) ∨ <var>S<sub>y</sub></var> &gt; height − ${P_("insetBottom")} = ${num(S.H - S.insetBottom)} <span style="color:var(--ink3)">L116-117</span></div>`;
   const span = (tt, diag) => { const c = 2 * deg(Math.atan(Math.min(tt, 1))); return {card: c, other: 90 - c}; };
   const on = span(tON), offs = span(tOFF);
@@ -639,7 +782,11 @@ function equations() {
   <div class="row">diagonal span (on) = 90° − 2θ = ${num(on.other, 1)}°;  dead gap (off) = 90° − 2θ = ${num(offs.other, 1)}°</div>
   ${tON > 1 || tOFF > 1 ? `<div class="row" style="color:#b42318">t &gt; 1: horizontal is tested first and swallows the overlap</div>` : ""}`;
   const w = +document.getElementById("vw").value, lim = w * t;
-  document.getElementById("eqV").innerHTML = `<h3>Equations (width <var>w</var> = ${num(w)})</h3>
+  document.getElementById("eqV").innerHTML = S.rule === "proposed" ? `<h3>Equations, proposed rule (width <var>w</var> = ${num(w)})</h3>
+  <div class="row">V ⇔ <var>w</var> ≥ <span class="p-triW"><b>W</b></span> (${PV("triW")}) ∧ depth &gt; max(0, Δ<var>y</var>) + ${P_("tri")} (${PV("tri")})  for <i>any</i> Δ<var>y</var></div>
+  <div class="row">otherwise the current rule's answer stands: Right if |Δ<var>y</var>| &lt; ${num(lim)}, / reverse if Δ<var>y</var> &lt; −${num(lim)}, \\ if Δ<var>y</var> &gt; ${num(lim)}</div>
+  <div class="row">${w < S.triW ? `<span style="color:#b42318">w &lt; W here, so no V is possible at this width</span>` : `the dashed ±<var>w</var>·<var>t</var> lines now only matter below the depth line`}</div>`
+  : `<h3>Equations (width <var>w</var> = ${num(w)})</h3>
   <div class="row">V ⇔ <var>w</var> &gt; ${P_("slop")} ∧ |Δ<var>y</var>| &lt; <var>w</var>·<var>t</var> = ${num(w)}·tan(π / ${PV(key, 2)}) = ${num(lim)} ∧ depth &gt; max(0, Δ<var>y</var>) + ${P_("tri")} (${PV("tri")})</div>
   <div class="row">/ reverse ⇔ Δ<var>y</var> &lt; −${num(lim)}${S.diag ? "" : " → none when diagonals are off"}     \\ ⇔ Δ<var>y</var> &gt; ${num(lim)}</div>
   <div class="row">Right ⇔ |Δ<var>y</var>| &lt; ${num(lim)} ∧ depth ≤ max(0, Δ<var>y</var>) + ${PV("tri")}</div>
@@ -649,21 +796,46 @@ function equations() {
   <div class="row">stays a straight-swipe gesture ⇔ <var>s</var> ≤ ${P_("tri")} = ${PV("tri")} px</div>
   <div class="row">φ<sub>max</sub> = 4·atan(2${P_("tri")}/<var>L</var>),  heading at start/end vs chord = φ/2 = 2·atan(2${P_("tri")}/<var>L</var>)</div>
   <div class="row">e.g. <var>L</var> = 800: ${num(2 * deg(Math.atan(2 * S.tri / 800)), 1)}° heading;  <var>L</var> = 1300: ${num(2 * deg(Math.atan(2 * S.tri / 1300)), 1)}°</div>
-  <div class="row">the direction itself only uses the chord, so curving never changes the direction. Only the lift-off point's angle can (±${num(half, 1)}°).</div>`;
+  <div class="row">the direction itself only uses the chord, so curving never changes the direction. Only the lift-off point's angle can (±${num(half, 1)}°).</div>
+  <div class="row">${S.rule === "proposed" ? `<b>proposed:</b> the same <var>s</var> ≤ ${PV("tri")} limit now also applies to diagonals (when the chord is at least ${PV("triW")} px along the other axis)` : `<b>current:</b> diagonals have no limit, since they have no triangle variant`}</div>`;
 }
 
+const PATCH = [{"t": "@", "s": "@@ -35,6 +35,7 @@"}, {"t": " ", "s": "    private val DOUBLE_TAP_TIMEOUT: Int", "o": 35}, {"t": " ", "s": "", "o": 36}, {"t": " ", "s": "    private val MIN_TRIANGLE_HEIGHT = 250", "o": 37}, {"t": "+", "s": "    private val MIN_TRIANGLE_WIDTH = @triW@"}, {"t": " ", "s": "", "o": 38}, {"t": " ", "s": "    private var systemGestureInsetTop = 100", "o": 39}, {"t": " ", "s": "    private var systemGestureInsetBottom = 0", "o": 40}, {"t": "@", "s": "@@ -133,6 +134,25 @@"}, {"t": " ", "s": "        return sizeSquared() < TOUCH_SLOP_SQUARE", "o": 133}, {"t": " ", "s": "    }", "o": 134}, {"t": " ", "s": "", "o": 135}, {"t": "+", "s": "    private fun PointerPath.getTriangleGesture(): Gesture? {"}, {"t": "+", "s": "        val start = getStart(); val end = getEnd(); val pathMin = getMin(); val pathMax = getMax()"}, {"t": "+", "s": "        val seMin = start.minimum(end); val seMax = start.maximum(end)"}, {"t": "+", "s": "        val dx = end.x - start.x; val dy = end.y - start.y"}, {"t": "+", "s": "        val down = pathMax.y - seMax.y; val up = seMin.y - pathMin.y"}, {"t": "+", "s": "        val right = pathMax.x - seMax.x; val left = seMin.x - pathMin.x"}, {"t": "+", "s": "        val vertical = max(down, up); val horizontal = max(right, left)"}, {"t": "+", "s": "        if (max(vertical, horizontal) <= MIN_TRIANGLE_HEIGHT) return null"}, {"t": "+", "s": "        return if (vertical >= horizontal) {"}, {"t": "+", "s": "            if (abs(dx) < MIN_TRIANGLE_WIDTH) null"}, {"t": "+", "s": "            else if (down >= up) { if (dx > 0) Gesture.SWIPE_V else Gesture.SWIPE_V_REVERSE }"}, {"t": "+", "s": "            else { if (dx > 0) Gesture.SWIPE_LAMBDA else Gesture.SWIPE_LAMBDA_REVERSE }"}, {"t": "+", "s": "        } else {"}, {"t": "+", "s": "            if (abs(dy) < MIN_TRIANGLE_WIDTH) null"}, {"t": "+", "s": "            else if (left >= right) { if (dy > 0) Gesture.SWIPE_SMALLER else Gesture.SWIPE_SMALLER_REVERSE }"}, {"t": "+", "s": "            else { if (dy > 0) Gesture.SWIPE_LARGER else Gesture.SWIPE_LARGER_REVERSE }"}, {"t": "+", "s": "        }"}, {"t": "+", "s": "    }"}, {"t": "+", "s": ""}, {"t": " ", "s": "    init {", "o": 136}, {"t": " ", "s": "        val configuration = ViewConfiguration.get(context)", "o": 137}, {"t": " ", "s": "        TOUCH_SLOP = configuration.scaledTouchSlop", "o": 138}, {"t": "@", "s": "@@ -280,10 +300,11 @@"}, {"t": " ", "s": "            return", "o": 280}, {"t": " ", "s": "        }", "o": 281}, {"t": " ", "s": "", "o": 282}, {"t": "-", "s": "        var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: return", "o": 283}, {"t": "+", "s": "        val triangle = if (pointerCount == 1) mainPointerPath.getTriangleGesture() else null"}, {"t": "+", "s": "        var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: triangle ?: return"}, {"t": " ", "s": "", "o": 284}, {"t": " ", "s": "        // ignore multiple concurrent swipes that don't match", "o": 285}, {"t": "-", "s": "        if (idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {", "o": 286}, {"t": "+", "s": "        if (pointerCount > 1 && idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {"}, {"t": " ", "s": "            return", "o": 287}, {"t": " ", "s": "        }", "o": 288}, {"t": " ", "s": "", "o": 289}, {"t": "@", "s": "@@ -300,6 +321,8 @@"}, {"t": " ", "s": "        val mainPointerPathMin = mainPointerPath.getMin()", "o": 300}, {"t": " ", "s": "        val mainPointerPathMax = mainPointerPath.getMax()", "o": 301}, {"t": " ", "s": "", "o": 302}, {"t": "+", "s": "        val beforeTriangleVariants = gesture"}, {"t": "+", "s": ""}, {"t": " ", "s": "        // vertical triangle variants", "o": 303}, {"t": " ", "s": "        if (startEndMax.x + MIN_TRIANGLE_HEIGHT < mainPointerPathMax.x) {", "o": 304}, {"t": " ", "s": "            gesture = gesture.getTriangleVariant(Gesture.Direction.RIGHT)", "o": 305}, {"t": "@", "s": "@@ -314,6 +337,10 @@"}, {"t": " ", "s": "            gesture = gesture.getTriangleVariant(Gesture.Direction.UP)", "o": 314}, {"t": " ", "s": "        }", "o": 315}, {"t": " ", "s": "", "o": 316}, {"t": "+", "s": "        if (gesture == beforeTriangleVariants && triangle != null) {"}, {"t": "+", "s": "            gesture = triangle"}, {"t": "+", "s": "        }"}, {"t": "+", "s": ""}, {"t": " ", "s": "        if (LauncherPreferences.enabled_gestures().edgeSwipe()) {", "o": 317}, {"t": " ", "s": "            // left and right edge variants", "o": 318}, {"t": " ", "s": "            if (mainPointerPathMax.x < edgeWidth * width) {", "o": 319}];
+const esc = x => x.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 function diff() {
-  const out = [];
-  for (const [k, [ln, fn]] of Object.entries(DIFF_LINE)) if (S[k] !== ORIG[k]) out.push(`<span class="del">-${ln}: ${fn(ORIG[k]).replace(/</g, "&lt;")}</span>\n<span class="add">+${ln}: ${fn(S[k]).replace(/</g, "&lt;")}</span>`);
-  if (S.diag !== ORIG.diag) out.push(`<span class="add">  preference diagonalSwipe() = ${S.diag}</span>`);
-  if (S.W !== ORIG.W || S.H !== ORIG.H) out.push(`<span class="add">  screen ${S.W}×${S.H}</span>`);
-  document.getElementById("diff").innerHTML = out.length ? out.join("\n") : "(no changes; every value matches the source)";
+  const out = [], changed = {};
+  for (const [k, [ln, fn]] of Object.entries(DIFF_LINE)) if (S[k] !== ORIG[k]) changed[ln] = [fn(ORIG[k]), fn(S[k])];
+  const inPatch = new Set(S.rule === "proposed" ? PATCH.filter(r => r.o).map(r => r.o) : []);
+  out.push(`<span class="hd">--- a/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt\n+++ b/app/src/main/java/de/jrpie/android/launcher/ui/TouchGestureDetector.kt</span>`);
+  for (const ln of Object.keys(changed).map(Number).sort((a, b) => a - b)) {
+    if (inPatch.has(ln)) continue;
+    out.push(`<span class="hk">@@ line ${ln} @@</span>\n<span class="del">-${esc(changed[ln][0])}</span>\n<span class="add">+${esc(changed[ln][1])}</span>`);
+  }
+  if (S.rule === "proposed") {
+    const rows = [];
+    for (const r of PATCH) {
+      const s = r.s.replace("@triW@", S.triW);
+      if (r.t === "@") rows.push(`<span class="hk">${esc(s)}</span>`);
+      else if (r.t === "+") rows.push(`<span class="add">+${esc(s)}</span>`);
+      else if (r.t === "-") rows.push(`<span class="del">-${esc(changed[r.o] ? changed[r.o][0] : s)}</span>`);
+      else if (changed[r.o]) rows.push(`<span class="del">-${esc(changed[r.o][0])}</span>`, `<span class="add">+${esc(changed[r.o][1])}</span>`);
+      else rows.push(` ${esc(s)}`);
+    }
+    out.push(rows.join("\n"));
+  }
+  const notes = [];
+  if (S.diag !== ORIG.diag) notes.push(`preference diagonalSwipe() = ${S.diag}`);
+  if (S.W !== ORIG.W || S.H !== ORIG.H) notes.push(`screen ${S.W}×${S.H}`);
+  const body = out.length > 1 ? out.join("\n") : "(no code changes; every value matches the source)";
+  document.getElementById("diff").innerHTML = body + (notes.length ? `\n\n<span class="hk">not code: ${notes.join(", ")}</span>` : "");
+  document.getElementById("diffTitle").textContent = S.rule === "proposed" ? "Proposed rule + your edits, as a diff against the current source" : "Your edits as a diff against the current source";
 }
 
 function syncInputs() {
-  document.querySelectorAll("input.pv").forEach(el => {
+  document.querySelectorAll("input.pv, select.pv").forEach(el => {
     const k = el.dataset.k;
     if (el.type === "checkbox") el.checked = !!S[k];
+    else if (el.tagName === "SELECT") el.value = S[k];
     else if (document.activeElement !== el) el.value = S[k];
     if (el.type === "number") el.style.width = (String(el.value).length + 4.5) + "ch";
     el.classList.toggle("changed", S[k] !== ORIG[k]);
@@ -672,7 +844,9 @@ function syncInputs() {
 function toolbar() {
   const keys = ["angOn", "angOff", "slop", "tri", "insetTop", "insetBottom"];
   document.getElementById("toolbar").innerHTML = keys.map(k => `<span class="param p-${k}"><span class="sw" style="background:var(--c-${k})"></span>${PARAM_LABEL[k]} ${k.startsWith("ang") ? "n = " : ""}<input class="pv" data-k="${k}" type="number" step="any"></span>`).join("") +
-    `<label class="param p-diag"><input class="pv" data-k="diag" type="checkbox"> diagonals</label><button id="reset">reset to source</button><button id="share">copy link</button>`;
+    `<label class="param p-diag"><input class="pv" data-k="diag" type="checkbox"> diagonals</label>` +
+    `<label class="param p-rule">triangle rule <select class="pv" data-k="rule"><option value="current">current (L303-314)</option><option value="proposed">proposed (shape-first)</option></select></label>` +
+    `<span class="param p-triW proposed"><span class="sw" style="background:var(--c-triW)"></span>MIN_TRIANGLE_WIDTH <input class="pv" data-k="triW" type="number" step="any"></span><button id="reset">reset to source</button><button id="share">copy link</button>`;
   document.getElementById("reset").onclick = () => { Object.assign(S, ORIG); syncInputs(); schedule(); save(); };
   document.getElementById("share").onclick = () => { save(); navigator.clipboard && navigator.clipboard.writeText(location.href); };
 }
@@ -681,6 +855,7 @@ function bindInputs() {
     const el = e.target; if (!el.classList.contains("pv")) return;
     const k = el.dataset.k;
     if (el.type === "checkbox") S[k] = el.checked;
+    else if (el.tagName === "SELECT") S[k] = el.value;
     else { const v = parseFloat(el.value); if (!isFinite(v) || ((k === "angOn" || k === "angOff") && v <= 2)) return; S[k] = v; }
     syncInputs(); schedule(); save();
   });
@@ -690,6 +865,7 @@ function save() { history.replaceState(null, "", "#" + encodeURIComponent(JSON.s
 let pending = false;
 function schedule() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; renderAll(); }); }
 function renderAll() {
+  document.body.classList.toggle("rule-proposed", S.rule === "proposed");
   drawMap(); drawRose(document.getElementById("roseOn"), true); drawRose(document.getElementById("roseOff"), false);
   drawV(); drawArc(); equations(); diff();
   legend("mapLegend", sel.hl >= 0 ? [sel.hl] : [...Array(18).keys()].filter(g => g !== 0 || true));

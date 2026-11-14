@@ -1,6 +1,9 @@
+import difflib
 import html
+import json
 import re
 import subprocess
+import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -51,7 +54,102 @@ def render_line(n):
         s = s.replace(a, b, 1)
     if n in CHIPS:
         s += "  " + CHIPS[n]
-    return f'<span class="ln">{n}</span>{s}'
+    old = " old" if 303 <= n <= 314 else ""
+    return f'<span class="L{old}"><span class="ln">{n}</span>{s}</span>'
+
+
+PROPOSED = """private val MIN_TRIANGLE_WIDTH = @triW@
+
+private fun PointerPath.getTriangleGesture(): Gesture? {
+    val start = getStart(); val end = getEnd(); val pathMin = getMin(); val pathMax = getMax()
+    val seMin = start.minimum(end); val seMax = start.maximum(end)
+    val dx = end.x - start.x; val dy = end.y - start.y
+    val down = pathMax.y - seMax.y; val up = seMin.y - pathMin.y
+    val right = pathMax.x - seMax.x; val left = seMin.x - pathMin.x
+    val vertical = max(down, up); val horizontal = max(right, left)
+    if (max(vertical, horizontal) <= MIN_TRIANGLE_HEIGHT) return null
+    return if (vertical >= horizontal) {
+        if (abs(dx) < MIN_TRIANGLE_WIDTH) null
+        else if (down >= up) { if (dx > 0) Gesture.SWIPE_V else Gesture.SWIPE_V_REVERSE }
+        else { if (dx > 0) Gesture.SWIPE_LAMBDA else Gesture.SWIPE_LAMBDA_REVERSE }
+    } else {
+        if (abs(dy) < MIN_TRIANGLE_WIDTH) null
+        else if (left >= right) { if (dy > 0) Gesture.SWIPE_SMALLER else Gesture.SWIPE_SMALLER_REVERSE }
+        else { if (dy > 0) Gesture.SWIPE_LARGER else Gesture.SWIPE_LARGER_REVERSE }
+    }
+}
+
+val triangle = if (pointerCount == 1) mainPointerPath.getTriangleGesture() else null
+var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: triangle ?: return
+if (pointerCount > 1 && idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {
+    return
+}
+
+val beforeTriangleVariants = gesture
+
+if (gesture == beforeTriangleVariants && triangle != null) {
+    gesture = triangle
+}"""
+
+
+def patched_source():
+    parts = PROPOSED.split("\n")
+    decl, fn, classify_head, before, after = parts[0], parts[2:20], parts[21:26], parts[27], parts[29:32]
+    ind = lambda lines, n: [(" " * n + l) if l else l for l in lines]
+    out = []
+    for n, line in enumerate(LINES, 1):
+        if n == 283:
+            out.extend(ind(classify_head[:2], 8))
+            continue
+        if n == 286:
+            out.append(line.replace("if (idToPath", "if (pointerCount > 1 && idToPath"))
+            continue
+        if n == 303:
+            out.extend(ind([before, ""], 8))
+        out.append(line)
+        if n == 37:
+            out.append(ind([decl], 4)[0])
+        if n == 135:
+            out.extend(ind(fn, 4) + [""])
+        if n == 315:
+            out.extend([""] + ind(after, 8))
+    return out
+
+
+def proposed_diff():
+    with tempfile.TemporaryDirectory() as d:
+        a, b = Path(d, "a.kt"), Path(d, "b.kt")
+        a.write_text("\n".join(LINES))
+        b.write_text("\n".join(patched_source()))
+        res = subprocess.run(["git", "diff", "--no-index", "--no-color", "-U3", str(a), str(b)],
+                             capture_output=True, text=True)
+    rows, o = [], 0
+    for line in res.stdout.split("\n"):
+        if line.startswith("@@"):
+            o = int(re.match(r"@@ -(\d+)", line).group(1))
+            rows.append({"t": "@", "s": line.split(" @@")[0] + " @@"})
+        elif not rows or line.startswith("\\"):
+            continue
+        elif line.startswith("+"):
+            rows.append({"t": "+", "s": line[1:]})
+        elif line.startswith("-") or line.startswith(" "):
+            rows.append({"t": line[0], "s": line[1:], "o": o})
+            o += 1
+    return rows
+
+
+def proposed_block():
+    out = []
+    for i, line in enumerate(PROPOSED.split("\n"), 1):
+        s = html.escape(line)
+        s = re.sub(r"\bMIN_TRIANGLE_HEIGHT\b", '<span class="id p-tri">MIN_TRIANGLE_HEIGHT</span>', s)
+        s = re.sub(r"\bMIN_TRIANGLE_WIDTH\b", '<span class="id p-triW">MIN_TRIANGLE_WIDTH</span>', s)
+        s = s.replace("@triW@", inp("triW"))
+        out.append(f'<span class="L"><span class="ln">+{i}</span>{s}</span>')
+    head = ('<div class="ref"><span>proposed</span>shape-first triangle rule '
+            f'(lines +22 to +26 replace <a href="{GH}#L283-L288" target="_blank">:283-288</a>; '
+            f'+28 goes before <a href="{GH}#L303-L314" target="_blank">:303-314</a>, +30 to +32 after it)</div>')
+    return '<div class="proposed">' + head + '<pre class="code">' + "\n".join(out) + "</pre></div>"
 
 
 def block(ranges):
@@ -77,6 +175,8 @@ BLOCKS = {
 page = open(TEMPLATE).read()
 for k, r in BLOCKS.items():
     page = page.replace("{{" + k + "}}", block(r))
+page = page.replace("{{CODE_PROPOSED}}", proposed_block())
+page = page.replace("{{PROPOSED_DIFF}}", json.dumps(proposed_diff()).replace("</", "<\\/"))
 page = page.replace("{{SRC_REL}}", SRC_REL).replace("{{SHA}}", SHA[:7])
 open(OUT, "w").write(page)
 print("built", OUT)
