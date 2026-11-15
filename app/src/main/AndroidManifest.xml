@@ -92,6 +92,15 @@
             android:name=".ui.ReportCrashActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".telemetry.GesturePickerActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <receiver
+            android:name=".telemetry.GesturePromptReceiver"
+            android:exported="false" />
         <receiver
             android:name=".actions.lock.LauncherDeviceAdmin"
             android:description="@string/device_admin_description"

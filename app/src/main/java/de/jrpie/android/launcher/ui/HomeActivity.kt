@@ -1,5 +1,6 @@
 package de.jrpie.android.launcher.ui
 
+import de.jrpie.android.launcher.requestNotificationPermission
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.os.Bundle
@@ -41,6 +42,7 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super<LauncherGestureActivity>.onCreate(savedInstanceState)
         super<UIObject>.onCreate()
+        requestNotificationPermission(this)
 
         // Initialise layout
         binding = ActivityHomeBinding.inflate(layoutInflater)
