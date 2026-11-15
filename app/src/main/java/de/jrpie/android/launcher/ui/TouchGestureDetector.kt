@@ -34,7 +34,8 @@ class TouchGestureDetector(
     private val TAP_TIMEOUT: Int
     private val DOUBLE_TAP_TIMEOUT: Int
 
-    private val MIN_TRIANGLE_HEIGHT = 250
+    private val MIN_TRIANGLE_HEIGHT = 175
+    private val MIN_TRIANGLE_WIDTH = 175
 
     private var systemGestureInsetTop = 100
     private var systemGestureInsetBottom = 0
@@ -131,6 +132,25 @@ class TouchGestureDetector(
             return false
         }
         return sizeSquared() < TOUCH_SLOP_SQUARE
+    }
+
+    private fun PointerPath.getTriangleGesture(): Gesture? {
+        val start = getStart(); val end = getEnd(); val pathMin = getMin(); val pathMax = getMax()
+        val seMin = start.minimum(end); val seMax = start.maximum(end)
+        val dx = end.x - start.x; val dy = end.y - start.y
+        val down = pathMax.y - seMax.y; val up = seMin.y - pathMin.y
+        val right = pathMax.x - seMax.x; val left = seMin.x - pathMin.x
+        val vertical = max(down, up); val horizontal = max(right, left)
+        if (max(vertical, horizontal) <= MIN_TRIANGLE_HEIGHT) return null
+        return if (vertical >= horizontal) {
+            if (abs(dx) < MIN_TRIANGLE_WIDTH) null
+            else if (down >= up) { if (dx > 0) Gesture.SWIPE_V else Gesture.SWIPE_V_REVERSE }
+            else { if (dx > 0) Gesture.SWIPE_LAMBDA else Gesture.SWIPE_LAMBDA_REVERSE }
+        } else {
+            if (abs(dy) < MIN_TRIANGLE_WIDTH) null
+            else if (left >= right) { if (dy > 0) Gesture.SWIPE_SMALLER else Gesture.SWIPE_SMALLER_REVERSE }
+            else { if (dy > 0) Gesture.SWIPE_LARGER else Gesture.SWIPE_LARGER_REVERSE }
+        }
     }
 
     init {
@@ -280,10 +300,11 @@ class TouchGestureDetector(
             return
         }
 
-        var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: return
+        val triangle = if (pointerCount == 1) mainPointerPath.getTriangleGesture() else null
+        var gesture = getGestureForDirection(mainPointerPath.getDirection()) ?: triangle ?: return
 
         // ignore multiple concurrent swipes that don't match
-        if (idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {
+        if (pointerCount > 1 && idToPath.values.any { getGestureForDirection(it.getDirection()) != gesture }) {
             return
         }
 
@@ -300,6 +321,8 @@ class TouchGestureDetector(
         val mainPointerPathMin = mainPointerPath.getMin()
         val mainPointerPathMax = mainPointerPath.getMax()
 
+        val beforeTriangleVariants = gesture
+
         // vertical triangle variants
         if (startEndMax.x + MIN_TRIANGLE_HEIGHT < mainPointerPathMax.x) {
             gesture = gesture.getTriangleVariant(Gesture.Direction.RIGHT)
@@ -312,6 +335,10 @@ class TouchGestureDetector(
             gesture = gesture.getTriangleVariant(Gesture.Direction.DOWN)
         } else if (startEndMin.y - MIN_TRIANGLE_HEIGHT > mainPointerPathMin.y) {
             gesture = gesture.getTriangleVariant(Gesture.Direction.UP)
+        }
+
+        if (gesture == beforeTriangleVariants && triangle != null) {
+            gesture = triangle
         }
 
         if (LauncherPreferences.enabled_gestures().edgeSwipe()) {
